@@ -1,25 +1,12 @@
 
-Caclit Node.js Workflow
+Lilac: some validation functions in ClojureScript
 ----
 
 ### Usage
 
-You need Node.js and JVM to run this app:
+TODO
 
-```bash
-yarn
-yarn watch
-
-# meanwhile
-node target/server.js
-```
-
-To start the editor, use:
-
-```bash
-npm i -g calcit-editor
-calcit-editor # or ce for short
-```
+[![Clojars Project](https://img.shields.io/clojars/v/mvc-works/lilac.svg)](https://clojars.org/mvc-works/lilac)
 
 ### License
 

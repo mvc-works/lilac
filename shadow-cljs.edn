@@ -5,14 +5,12 @@
     "clojars" {:url "https://mirrors.ustc.edu.cn/clojars/"}
   }
   :dependencies [
-    [mvc-works/skir "0.0.4"]
-    [respo/router "0.4.0"]
     [medley "1.2.0"]
   ]
   :builds {
     :app {
-      :target :node-script, :output-to "target/server.js", :main app.main/main!
-      :devtools {:after-load app.main/reload!}
+      :target :node-script, :output-to "target/server.js", :main lilac.main/main!
+      :devtools {:after-load lilac.main/reload!}
     }
   }
 }
