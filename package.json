@@ -2,7 +2,7 @@
   "name": "calcit-nodejs-workflow",
   "version": "0.1.0",
   "scripts": {
-    "watch": "yarn shadow-cljs watch app"
+    "watch": "yarn shadow-cljs watch app test"
   },
   "main": "index.js",
   "repository": "git@github.com:mvc-works/calcit-nodejs-workflow.git",

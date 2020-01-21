@@ -7,8 +7,12 @@ Lilac: some validation functions in ClojureScript
 [![Clojars Project](https://img.shields.io/clojars/v/mvc-works/lilac.svg)](https://clojars.org/mvc-works/lilac)
 
 ```clojure
-(deflilac lilac-demo (a b)
-  (lilac-number nil))
+(require '[lilac.core :refer [validate-lilac lilac-number lilac-string lilac-or]])
+
+(validate-lilac 1 (lilac-number nil))
+
+(validate-lilac 1
+  (lilac-or (lilac-number nil) (lilac-string nil)))
 ```
 
 ### License

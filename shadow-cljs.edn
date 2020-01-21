@@ -12,5 +12,8 @@
       :target :node-script, :output-to "target/server.js", :main lilac.main/main!
       :devtools {:after-load lilac.main/reload!}
     }
+    :test {
+      :target :node-test, :output-to "target/test.js", :ns-regexp "test$", :autorun true
+    }
   }
 }
