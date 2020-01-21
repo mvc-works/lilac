@@ -1,11 +1,17 @@
 
-(ns lilac.main (:require [lilac.core :refer [lilac-number deflilac validate-lilac]]))
+(ns lilac.main
+  (:require [lilac.core :refer [lilac-number lilac-or deflilac validate-lilac lilac-string]]
+            ["fs" :as fs]
+            ["path" :as path]
+            [cljs.reader :refer [read-string]]))
 
-(def demo-data 1)
+(deflilac lilac-demo () (lilac-or (lilac-number nil) (lilac-string nil)))
 
-(deflilac lilac-demo () (lilac-number nil))
-
-(defn run-demo! [] (validate-lilac demo-data lilac-demo))
+(defn run-demo! []
+  (let [data (read-string (fs/readFileSync (path/join js/__dirname "config.edn") "utf8"))
+        result (validate-lilac data lilac-demo [])]
+    (println)
+    (println "Result" result)))
 
 (defn main! [] (println "Started.") (run-demo!))
 
