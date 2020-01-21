@@ -1,11 +1,16 @@
 
-(ns lilac.core )
+(ns lilac.core (:require-macros [lilac.core]))
 
-(defn lilac-fn [f] [{:type :fn, :fn f}])
+(def lilac-boolean {:lilac-type :boolean})
 
-(defn lilac-vector [validator]
-  [{:type :type, :fn vector?}
-   {:type :item, :fn validator}
-   {:type :or, :cases [{:type :fn, :fn inc?} {:type :lilac, :fn lilac-vector}]}])
+(defn lilac-fn [message f] {:lilac-type :fn, :fn f, :message message})
 
-(defn validate-lilac [data rule] (println "TODO"))
+(defn lilac-number [options] {:lilac-type :number, :custom-fn (:custom-fn options)})
+
+(defn lilac-vector [child-rule options]
+  {:lilac-type :vector,
+   :item child-rule,
+   :size (:size options),
+   :custom-fn (:custom-fn options)})
+
+(defn validate-lilac [data rule] (println "TODO" data rule))
