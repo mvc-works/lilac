@@ -1,9 +1,9 @@
 
 (defmacro deflilac [comp-name args body]
- `(def ~comp-name {
+ `(defn ~comp-name [~@args] {
     :lilac-type :component
     :name (keyword '~comp-name)
-    :args '[~@(vec args)]
+    :args [~@args]
     :fn (fn [~@args] ~body)
     }))
 
@@ -11,6 +11,6 @@
 
 (deflilac lilac-a [x y] (+ x y))
 
-(println (pr-str lilac-a))
+(println (pr-str (lilac-a 3 4)))
 
-(println ((:fn lilac-a) 1 2))
+(println ((:fn (lilac-a 3 4)) 1 2))
