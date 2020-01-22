@@ -21,6 +21,8 @@
 
 (declare validate-component)
 
+(defonce *custom-methods (atom {}))
+
 (defn validate-boolean [data rule coord]
   (if (boolean? data)
     {:ok? true}
@@ -179,10 +181,15 @@
   ([data rule] (validate-lilac data rule []))
   ([data rule coord]
    (comment println "got" rule)
-   (let [kind (:lilac-type rule), method (get core-methods kind)]
-     (when (nil? method) (println "Unknown method:" kind "of" rule) (.exit js/process 1))
-     (comment println "calling method for" kind method)
-     (method data rule coord))))
+   (let [kind (:lilac-type rule)
+         method (get core-methods kind)
+         user-method (get @*custom-methods kind)]
+     (cond
+       (fn? method)
+         (do (comment println "calling method for" kind method) (method data rule coord))
+       (fn? user-method)
+         (do (comment println "calling method for" kind method) (user-method data rule coord))
+       :else (println "Unknown method:" kind "of" rule)))))
 
 (defn validate-component [data rule coord]
   (let [lazy-fn (:fn rule)

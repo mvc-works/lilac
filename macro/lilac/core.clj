@@ -2,9 +2,9 @@
 (ns lilac.core)
 
 (defmacro deflilac [comp-name args body]
- `(def ~comp-name {
+ `(defn ~comp-name [~@args] {
     :lilac-type :component
     :name (keyword '~comp-name)
-    :args '[~@(vec args)]
+    :args [~@args]
     :fn (fn [~@args] ~body)
     }))
