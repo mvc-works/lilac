@@ -17,12 +17,30 @@
               lilac-or
               lilac-and
               lilac-not
-              lilac-custom]]))
+              lilac-custom
+              lilac-is]]))
+
+(deflilac
+ lilac-method
+ ()
+ (lilac-or (lilac-nil) (lilac-map {:type (lilac-is :file), :file (lilac-string nil)} nil)))
+
+(deflilac
+ lilac-router-path
+ ()
+ (lilac-map
+  {:path (lilac-string nil),
+   :get lilac-method,
+   :post lilac-method,
+   :put lilac-method,
+   :delete lilac-method,
+   :next (lilac-or (lilac-nil) (lilac-vector lilac-router-path nil))}
+  nil))
 
 (deflilac
  lilac-router
  ()
- (lilac-map {:port (lilac-number nil), :routes (lilac-vector (lilac-map nil nil) nil)} nil))
+ (lilac-map {:port (lilac-number nil), :routes (lilac-vector lilac-router-path nil)} nil))
 
 (def router-data
   {:port 7800,
@@ -147,9 +165,29 @@
 
 (deftest
  test-router-config
- (testing (is (= true (:ok? (validate-lilac router-data lilac-router)))))
- (testing (is (= false (:ok? (validate-lilac "random text" lilac-router)))))
- (testing (is (= false (:ok? (validate-lilac {:port 0, :routes 0} lilac-router))))))
+ (testing "valid config" (is (= true (:ok? (validate-lilac router-data lilac-router)))))
+ (testing
+  "overwriten config"
+  (is
+   (=
+    false
+    (:ok?
+     (validate-lilac
+      (assoc-in router-data [:routes 1 :next 1 :get] "overwriten")
+      lilac-router)))))
+ (testing
+  "config with no file"
+  (is
+   (=
+    false
+    (:ok?
+     (validate-lilac (assoc-in router-data [:routes 1 :next 1 :get :file] nil) lilac-router)))))
+ (testing
+  "string is not router config"
+  (is (= false (:ok? (validate-lilac "random text" lilac-router)))))
+ (testing
+  "routes need to be a string"
+  (is (= false (:ok? (validate-lilac {:port 0, :routes 0} lilac-router))))))
 
 (deftest
  test-string
