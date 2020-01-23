@@ -18,39 +18,13 @@
               and+
               not+
               custom+
-              is+]]))
+              is+
+              optional+]]
+            [lilac.router :refer [lilac-router+ router-data]]))
 
 (defn =ok [x obj] (= x (:ok? obj)))
 
 (deflilac lilac-good-number+ (n) (number+ {:min n}))
-
-(deflilac lilac-method+ () (or+ [(nil+) (map+ {:type (is+ :file), :file (string+)})]))
-
-(deflilac
- lilac-router-path+
- ()
- (map+
-  {:path (string+),
-   :get (lilac-method+),
-   :post (lilac-method+),
-   :put (lilac-method+),
-   :delete (lilac-method+),
-   :next (or+ [(nil+) (vector+ (lilac-router-path+))])}))
-
-(deflilac lilac-router+ () (map+ {:port (number+), :routes (vector+ (lilac-router-path+))}))
-
-(def router-data
-  {:port 7800,
-   :routes [{:path "home", :get {:type :file, :file "home.json"}}
-            {:path "plants/:plant-id",
-             :get {:type :file, :file "plant-default.json"},
-             :post {:type :file, :file "ok.json"},
-             :next [{:path "overview", :get {:type :file, :file "overview.json"}}
-                    {:path "materials/:material-id",
-                     :get {:type :file, :file "materials.json"},
-                     :next [{:path "events",
-                             :get {:type :file, :file "events.json"},
-                             :delete {:code 202, :type :file, :file "ok.json"}}]}]}]})
 
 (deftest
  test-and
@@ -124,6 +98,16 @@
  (testing
   "99 is not larger than 100"
   (is (=ok false (validate-lilac 99 (number+ {:min 100}))))))
+
+(deftest
+ test-optional
+ (testing "optional value" (is (=ok true (validate-lilac nil (optional+ (number+))))))
+ (testing
+  "optional value a number"
+  (is (=ok true (validate-lilac 1 (optional+ (number+))))))
+ (testing
+  "not not fit optional number"
+  (is (=ok false (validate-lilac "1" (optional+ (number+)))))))
 
 (deftest
  test-or
