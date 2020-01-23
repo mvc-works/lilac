@@ -31,6 +31,12 @@ To added custom behaviors, do dirty work to:
 (swap! lilac.core/*custom-methods assoc :x (fn [x...] (x...)))
 ```
 
+If data does not pass validation, you may find by `:ok? false` and got message:
+
+```clojure
+(validate-lilac data lilac-demo+) ; {:ok? false, :formatted-message "..."}
+```
+
 ### Contribute to project
 
 If you like the idea in Lilac, fork the project and develop on your own intention. This project does not accept large changes.
