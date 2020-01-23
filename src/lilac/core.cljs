@@ -32,7 +32,11 @@
 (defn validate-boolean [data rule coord]
   (if (boolean? data)
     {:ok? true}
-    {:ok? false, :data data, :rule rule, :coord (conj coord :or), :message "Not a boolean"}))
+    {:ok? false,
+     :data data,
+     :rule rule,
+     :coord (conj coord :or),
+     :message (get-in rule [:options :message] "Not a boolean")}))
 
 (defn validate-custom [data rule coord]
   (let [method (:fn rule), next-coord (conj coord :custom), result (method data rule coord)]
@@ -42,31 +46,47 @@
        :data data,
        :rule rule,
        :coord next-coord,
-       :message "Failed to validate with custom method"})))
+       :message (get-in rule [:options :message] "Failed to validate with custom method")})))
 
 (defn validate-fn [data rule coord]
   (let [next-coord (conj coord :fn)]
     (if (fn? data)
       {:ok? true}
-      {:ok? false, :data data, :rule rule, :coord next-coord, :message "Not a function"})))
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord next-coord,
+       :message (get-in rule [:options :message] "Not a function")})))
 
 (defn validate-is [data rule coord]
   (let [coord (conj coord :is)]
     (if (= data (:item rule))
       {:ok? true}
-      {:ok? false, :data data, :rule rule, :coord coord, :message "Values not equal"})))
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord coord,
+       :message (get-in rule [:options :message] "Values not equal")})))
 
 (defn validate-keyword [data rule coord]
   (let [next-coord (conj coord :keyword)]
     (if (keyword? data)
       {:ok? true}
-      {:ok? false, :data data, :rule rule, :coord next-coord, :message "Not a keyword"})))
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord next-coord,
+       :message (get-in rule [:options :message] "Not a keyword")})))
 
 (defn validate-nil [data rule coord]
   (let [next-coord (conj coord :nil)]
     (if (nil? data)
       {:ok? true}
-      {:ok? false, :data data, :rule rule, :coord next-coord, :message "Expects a nil"})))
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord next-coord,
+       :message (get-in rule [:options :message] "Expects a nil")})))
 
 (defn validate-number [data rule coord]
   (let [coord (conj coord :number), min-v (:min rule), max-v (:max rule)]
@@ -74,8 +94,16 @@
       (if (and (if (some? min-v) (>= data min-v) true)
                (if (some? max-v) (<= data max-v) true))
         {:ok? true}
-        {:ok? false, :data data, :rule rule, :coord coord, :message "Number not in range"})
-      {:ok? false, :data data, :rule rule, :coord coord, :message "Not a number"})))
+        {:ok? false,
+         :data data,
+         :rule rule,
+         :coord coord,
+         :message (get-in rule [:options :message] "Number not in range")})
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord coord,
+       :message (get-in rule [:options :message] "Not a number")})))
 
 (defn validate-re [data rule coord]
   (let [coord (conj coord :re)]
@@ -85,7 +113,7 @@
        :data data,
        :rule rule,
        :coord coord,
-       :message "Not a regular expression"})))
+       :message (get-in rule [:options :message] "Not a regular expression")})))
 
 (defn validate-string [data rule coord]
   (let [coord (conj coord :string), re (:re rule)]
@@ -97,15 +125,23 @@
            :data data,
            :rule rule,
            :coord coord,
-           :message "Not passing regular expression"})
+           :message (get-in rule [:options :message] "Not passing regular expression")})
         {:ok? true})
-      {:ok? false, :data data, :rule rule, :coord coord, :message "Not a string"})))
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord coord,
+       :message (get-in rule [:options :message] "Not a string")})))
 
 (defn validate-symbol [data rule coord]
   (let [coord (conj coord :symbol)]
     (if (symbol? data)
       {:ok? true}
-      {:ok? false, :data data, :rule rule, :coord coord, :message "Not a symbol"})))
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord coord,
+       :message (get-in rule [:options :message] "Not a symbol")})))
 
 (defn validate-vector [data rule coord]
   (let [item-rule (:item rule), coord (conj coord :list)]
@@ -116,8 +152,19 @@
           (let [x0 (first xs)
                 child-coord (conj coord idx)
                 result (validate-lilac x0 item-rule child-coord)]
-            (if (:ok? result) (recur (rest xs) (inc idx)) result))))
-      {:ok? false, :data data, :rule rule, :coord coord, :message "Not a list"})))
+            (if (:ok? result)
+              (recur (rest xs) (inc idx))
+              {:ok? false,
+               :data data,
+               :rule rule,
+               :coord coord,
+               :message (get-in rule [:options :message] "Invalid child in vector"),
+               :next result}))))
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord coord,
+       :message (get-in rule [:options :message] "Not a vector")})))
 
 (defn validate-set [data rule coord]
   (let [item-rule (:item rule), coord (conj coord :list)]
@@ -128,8 +175,19 @@
           (let [x0 (first xs)
                 child-coord (conj coord idx)
                 result (validate-lilac x0 item-rule child-coord)]
-            (if (:ok? result) (recur (rest xs) (inc idx)) result))))
-      {:ok? false, :data data, :rule rule, :coord coord, :message "Not a list"})))
+            (if (:ok? result)
+              (recur (rest xs) (inc idx))
+              {:ok? false,
+               :data data,
+               :rule rule,
+               :coord coord,
+               :message (get-in rule [:options :message] "Invalid item in set"),
+               :next result}))))
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord coord,
+       :message (get-in rule [:options :message] "Not a list")})))
 
 (defn validate-or [data rule coord]
   (let [items (:items rule), next-coord (conj coord :or)]
@@ -139,7 +197,7 @@
          :coord next-coord,
          :rule rule,
          :data data,
-         :message "Found no match in or"}
+         :message (get-in rule [:options :message] "Found no match in or")}
         (let [r0 (first xs), result (validate-lilac data r0 next-coord)]
           (if (:ok? result) result (recur (rest xs))))))))
 
@@ -150,7 +208,8 @@
        :data data,
        :rule rule,
        :coord coord,
-       :message "Expects a inverted value in \"not\""}
+       :message (get-in rule [:options :message] "Expects a inverted value in \"not\""),
+       :next result}
       {:ok? true})))
 
 (defn validate-map [data rule coord]
@@ -168,8 +227,13 @@
                :data (get data k0),
                :rule r0,
                :coord child-coord,
-               :message (str "field" (str k0) "not validated")}))))
-      {:ok? false, :data data, :rule rule, :coord coord, :message "Not a map"})))
+               :message (str "field " (str k0) " not validated"),
+               :next result}))))
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord coord,
+       :message (get-in rule [:options :message] "Not a map")})))
 
 (defn validate-list [data rule coord]
   (let [item-rule (:item rule), coord (conj coord :list)]
@@ -180,8 +244,19 @@
           (let [x0 (first xs)
                 child-coord (conj coord idx)
                 result (validate-lilac x0 item-rule child-coord)]
-            (if (:ok? result) (recur (rest xs) (inc idx)) result))))
-      {:ok? false, :data data, :rule rule, :coord coord, :message "Not a list"})))
+            (if (:ok? result)
+              (recur (rest xs) (inc idx))
+              {:ok? false,
+               :data data,
+               :rule rule,
+               :coord coord,
+               :message (get-in rule [:options :message] "Invalid field in map"),
+               :next result}))))
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord coord,
+       :message (get-in rule [:options :message] "Not a list")})))
 
 (defn validate-lilac
   ([data rule] (validate-lilac data rule []))
@@ -215,7 +290,7 @@
              :coord next-coord,
              :rule rule,
              :data data,
-             :message "No more candidates"}))))))
+             :message (get-in rule [:options :message] "No more candidates")}))))))
 
 (def core-methods
   {:boolean validate-boolean,

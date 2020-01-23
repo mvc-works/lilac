@@ -5,7 +5,7 @@
             ["path" :as path]
             [cljs.reader :refer [read-string]]))
 
-(deflilac lilac-demo+ () (or+ (number+ nil) (string+ nil)))
+(deflilac lilac-demo+ () (or+ [(number+) (string+)]))
 
 (defn run-demo! []
   (let [data (read-string (fs/readFileSync (path/join js/__dirname "config.edn") "utf8"))
