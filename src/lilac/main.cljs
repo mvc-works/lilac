@@ -7,7 +7,8 @@
             [lilac.router :refer [router-data lilac-router+]]))
 
 (defn run-demo! []
-  (let [r e, s u, l t, validate-lilac router-data] (println (:formatted-message result))))
+  (let [result (validate-lilac router-data (lilac-router+))]
+    (if (:ok? result) (println "Passed validation!") (println (:formatted-message result)))))
 
 (defn main! [] (println "Started.") (run-demo!))
 

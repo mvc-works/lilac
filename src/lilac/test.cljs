@@ -18,7 +18,8 @@
               and+
               not+
               custom+
-              is+]]
+              is+
+              optional+]]
             [lilac.router :refer [lilac-router+ router-data]]))
 
 (defn =ok [x obj] (= x (:ok? obj)))
@@ -97,6 +98,16 @@
  (testing
   "99 is not larger than 100"
   (is (=ok false (validate-lilac 99 (number+ {:min 100}))))))
+
+(deftest
+ test-optional
+ (testing "optional value" (is (=ok true (validate-lilac nil (optional+ (number+))))))
+ (testing
+  "optional value a number"
+  (is (=ok true (validate-lilac 1 (optional+ (number+))))))
+ (testing
+  "not not fit optional number"
+  (is (=ok false (validate-lilac "1" (optional+ (number+)))))))
 
 (deftest
  test-or

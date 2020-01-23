@@ -7,6 +7,8 @@
 
 (declare validate-and)
 
+(declare validate-optional)
+
 (declare validate-map)
 
 (declare validate-not)
@@ -32,7 +34,7 @@
 (defn format-message [acc result]
   (if (nil? result)
     acc
-    (let [message (str (:coord result) " - " (:message result))]
+    (let [message (str (remove symbol? (:coord result)) " - " (:message result))]
       (recur (str acc (if (some? acc) "\n" "") message) (:next result)))))
 
 (defn validate-boolean [data rule coord]
@@ -41,11 +43,11 @@
     {:ok? false,
      :data data,
      :rule rule,
-     :coord (conj coord :or),
+     :coord (conj coord 'boolean),
      :message (get-in rule [:options :message] "Not a boolean")}))
 
 (defn validate-custom [data rule coord]
-  (let [method (:fn rule), next-coord (conj coord :custom), result (method data rule coord)]
+  (let [method (:fn rule), next-coord (conj coord 'custom), result (method data rule coord)]
     (if (:ok? result)
       result
       {:ok? false,
@@ -55,7 +57,7 @@
        :message (get-in rule [:options :message] "Failed to validate with custom method")})))
 
 (defn validate-fn [data rule coord]
-  (let [next-coord (conj coord :fn)]
+  (let [next-coord (conj coord 'fn)]
     (if (fn? data)
       {:ok? true}
       {:ok? false,
@@ -65,7 +67,7 @@
        :message (get-in rule [:options :message] "Not a function")})))
 
 (defn validate-is [data rule coord]
-  (let [coord (conj coord :is)]
+  (let [coord (conj coord 'is)]
     (if (= data (:item rule))
       {:ok? true}
       {:ok? false,
@@ -75,7 +77,7 @@
        :message (get-in rule [:options :message] "Values not equal")})))
 
 (defn validate-keyword [data rule coord]
-  (let [next-coord (conj coord :keyword)]
+  (let [next-coord (conj coord 'keyword)]
     (if (keyword? data)
       {:ok? true}
       {:ok? false,
@@ -85,7 +87,7 @@
        :message (get-in rule [:options :message] "Not a keyword")})))
 
 (defn validate-nil [data rule coord]
-  (let [next-coord (conj coord :nil)]
+  (let [next-coord (conj coord 'nil)]
     (if (nil? data)
       {:ok? true}
       {:ok? false,
@@ -95,7 +97,7 @@
        :message (get-in rule [:options :message] "Expects a nil")})))
 
 (defn validate-number [data rule coord]
-  (let [coord (conj coord :number), min-v (:min rule), max-v (:max rule)]
+  (let [coord (conj coord 'number), min-v (:min rule), max-v (:max rule)]
     (if (number? data)
       (if (and (if (some? min-v) (>= data min-v) true)
                (if (some? max-v) (<= data max-v) true))
@@ -112,7 +114,7 @@
        :message (get-in rule [:options :message] "Not a number")})))
 
 (defn validate-re [data rule coord]
-  (let [coord (conj coord :re)]
+  (let [coord (conj coord 're)]
     (if (re? data)
       {:ok? true}
       {:ok? false,
@@ -122,7 +124,7 @@
        :message (get-in rule [:options :message] "Not a regular expression")})))
 
 (defn validate-string [data rule coord]
-  (let [coord (conj coord :string), re (:re rule)]
+  (let [coord (conj coord 'string), re (:re rule)]
     (if (string? data)
       (if (some? re)
         (if (re-matches re data)
@@ -140,7 +142,7 @@
        :message (get-in rule [:options :message] "Not a string")})))
 
 (defn validate-symbol [data rule coord]
-  (let [coord (conj coord :symbol)]
+  (let [coord (conj coord 'symbol)]
     (if (symbol? data)
       {:ok? true}
       {:ok? false,
@@ -150,7 +152,7 @@
        :message (get-in rule [:options :message] "Not a symbol")})))
 
 (defn validate-vector [data rule coord]
-  (let [item-rule (:item rule), coord (conj coord :list)]
+  (let [item-rule (:item rule), coord (conj coord 'vector)]
     (if (vector? data)
       (loop [xs data, idx 0]
         (if (empty? xs)
@@ -173,7 +175,7 @@
        :message (get-in rule [:options :message] "Not a vector")})))
 
 (defn validate-set [data rule coord]
-  (let [item-rule (:item rule), coord (conj coord :list)]
+  (let [item-rule (:item rule), coord (conj coord 'set)]
     (if (set? data)
       (loop [xs data, idx 0]
         (if (empty? xs)
@@ -196,7 +198,7 @@
        :message (get-in rule [:options :message] "Not a list")})))
 
 (defn validate-or [data rule coord]
-  (let [items (:items rule), next-coord (conj coord :or)]
+  (let [items (:items rule), next-coord (conj coord 'or)]
     (loop [xs items]
       (if (empty? xs)
         {:ok? false,
@@ -207,8 +209,12 @@
         (let [r0 (first xs), result (validate-lilac data r0 next-coord)]
           (if (:ok? result) result (recur (rest xs))))))))
 
+(defn validate-optional [data rule coord]
+  (let [item (:item rule), coord (conj coord 'optional)]
+    (if (nil? data) {:ok? true} (validate-lilac data item coord))))
+
 (defn validate-not [data rule coord]
-  (let [coord (conj coord :not), item (:item rule), result (validate-lilac data item coord)]
+  (let [coord (conj coord 'not), item (:item rule), result (validate-lilac data item coord)]
     (if (:ok? result)
       {:ok? false,
        :data data,
@@ -219,7 +225,7 @@
       {:ok? true})))
 
 (defn validate-map [data rule coord]
-  (let [coord (conj coord :map), pairs (:pairs rule)]
+  (let [coord (conj coord 'map), pairs (:pairs rule)]
     (if (map? data)
       (loop [xs pairs]
         (if (empty? xs)
@@ -242,7 +248,7 @@
        :message (get-in rule [:options :message] "Not a map")})))
 
 (defn validate-list [data rule coord]
-  (let [item-rule (:item rule), coord (conj coord :list)]
+  (let [item-rule (:item rule), coord (conj coord 'list)]
     (if (list? data)
       (loop [xs data, idx 0]
         (if (empty? xs)
@@ -285,12 +291,12 @@
 
 (defn validate-component [data rule coord]
   (let [lazy-fn (:fn rule)
-        next-coord (conj coord (:name rule))
+        next-coord (conj coord (symbol (name (:name rule))))
         next-rule (apply lazy-fn (:args rule))]
     (validate-lilac data next-rule next-coord)))
 
 (defn validate-and [data rule coord]
-  (let [items (:items rule), next-coord (conj coord :and)]
+  (let [items (:items rule), next-coord (conj coord 'and)]
     (loop [xs items]
       (if (empty? xs)
         {:ok? true}
@@ -321,7 +327,8 @@
    :and validate-and,
    :custom validate-custom,
    :component validate-component,
-   :is validate-is})
+   :is validate-is,
+   :optional validate-optional})
 
 (defn custom+
   ([f] (custom+ f nil))
@@ -351,6 +358,10 @@
   ([] (number+ nil))
   ([options]
    {:lilac-type :number, :max (:max options), :min (:min options), :options options}))
+
+(defn optional+
+  ([item] (optional+ item nil))
+  ([item options] {:lilac-type :optional, :item item, :options options}))
 
 (defn or+
   ([items] (or+ items nil))

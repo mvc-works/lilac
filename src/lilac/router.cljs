@@ -17,9 +17,10 @@
               and+
               not+
               custom+
-              is+]]))
+              is+
+              optional+]]))
 
-(deflilac lilac-method+ () (or+ [(nil+) (map+ {:type (is+ :file), :file (string+)})]))
+(deflilac lilac-method+ () (optional+ (map+ {:type (is+ :file), :file (string+)})))
 
 (deflilac
  lilac-router-path+
@@ -30,7 +31,7 @@
    :post (lilac-method+),
    :put (lilac-method+),
    :delete (lilac-method+),
-   :next (or+ [(nil+) (vector+ (lilac-router-path+))])}))
+   :next (optional+ (vector+ (lilac-router-path+)))}))
 
 (deflilac lilac-router+ () (map+ {:port (number+), :routes (vector+ (lilac-router-path+))}))
 
