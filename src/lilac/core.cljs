@@ -29,6 +29,12 @@
 
 (defn boolean+ ([] (boolean+ nil)) ([options] {:lilac-type :boolean}))
 
+(defn format-message [acc result]
+  (if (nil? result)
+    acc
+    (let [message (str (:coord result) " - " (:message result))]
+      (recur (str acc (if (some? acc) "\n" "") message) (:next result)))))
+
 (defn validate-boolean [data rule coord]
   (if (boolean? data)
     {:ok? true}
@@ -264,13 +270,18 @@
    (comment println "got" rule)
    (let [kind (:lilac-type rule)
          method (get core-methods kind)
-         user-method (get @*custom-methods kind)]
-     (cond
-       (fn? method)
-         (do (comment println "calling method for" kind method) (method data rule coord))
-       (fn? user-method)
-         (do (comment println "calling method for" kind method) (user-method data rule coord))
-       :else (println "Unknown method:" kind "of" rule)))))
+         user-method (get @*custom-methods kind)
+         result (cond
+                  (fn? method)
+                    (do
+                     (comment println "calling method for" kind method)
+                     (method data rule coord))
+                  (fn? user-method)
+                    (do
+                     (comment println "calling method for" kind method)
+                     (user-method data rule coord))
+                  :else (println "Unknown method:" kind "of" rule))]
+     (if (:ok? result) result (assoc result :formatted-message (format-message nil result))))))
 
 (defn validate-component [data rule coord]
   (let [lazy-fn (:fn rule)
