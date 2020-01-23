@@ -31,6 +31,20 @@ To added custom behaviors, do dirty work to:
 (swap! lilac.core/*custom-methods assoc :x (fn [x...] (x...)))
 ```
 
+### Contribute to project
+
+If you like the idea in Lilac, fork the project and develop on your own intention. This project does not accept large changes.
+
+The project is developed based on Cirru toolchains. Clojure code are compiled from `calcit.cirru`. Make sure you are using [Calcit Editor](https://github.com/Cirru/calcit-editor) if you need the fix to be merged.
+
+### Naming
+
+Since Lilac has APIs similar to `number` `or` `and` `vector`, which are core functions/variables in Clojure. I have to add prefix/suffix in names.
+
+Lilac uses suffix of `+` in APIs, why? Look at this picture:
+
+![lilac picture](assets/lilac-720x480.jpg)
+
 ### License
 
 MIT
