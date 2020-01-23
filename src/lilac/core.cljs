@@ -231,37 +231,61 @@
    :component validate-component,
    :is validate-is})
 
-(defn lilac-and [& items] {:lilac-type :and, :items items})
+(defn lilac-and
+  ([items] (lilac-and items nil))
+  ([items options] {:lilac-type :and, :items items, :options options}))
 
-(defn lilac-boolean [] {:lilac-type :boolean})
+(defn lilac-boolean ([] (lilac-boolean nil)) ([options] {:lilac-type :boolean}))
 
-(defn lilac-custom [f options] {:lilac-type :custom, :fn f, :options options})
+(defn lilac-custom
+  ([f] (lilac-custom f nil))
+  ([f options] {:lilac-type :custom, :fn f, :options options}))
 
-(defn lilac-fn [f options] {:lilac-type :fn, :fn f, :options options})
+(defn lilac-fn ([] (lilac-fn nil)) ([options] {:lilac-type :fn, :options options}))
 
-(defn lilac-is [x] {:lilac-type :is, :item x})
+(defn lilac-is ([x] (lilac-is x nil)) ([x options] {:lilac-type :is, :item x}))
 
-(defn lilac-keyword [options] {:lilac-type :keyword, :options options})
+(defn lilac-keyword
+  ([] (lilac-keyword nil))
+  ([options] {:lilac-type :keyword, :options options}))
 
-(defn lilac-list [item options] {:lilac-type :list, :item item, :options options})
+(defn lilac-list
+  ([item] (lilac-list item nil))
+  ([item options] {:lilac-type :list, :item item, :options options}))
 
-(defn lilac-map [pairs options] {:lilac-type :map, :pairs pairs, :options options})
+(defn lilac-map
+  ([pairs] (lilac-map pairs nil))
+  ([pairs options] {:lilac-type :map, :pairs pairs, :options options}))
 
-(defn lilac-nil [] {:lilac-type :nil})
+(defn lilac-nil ([] (lilac-nil {})) ([options] {:lilac-type :nil}))
 
-(defn lilac-not [item] {:lilac-type :not, :item item})
+(defn lilac-not
+  ([item] (lilac-not item nil))
+  ([item options] {:lilac-type :not, :item item, :options options}))
 
-(defn lilac-number [options]
-  {:lilac-type :number, :max (:max options), :min (:min options), :options options})
+(defn lilac-number
+  ([] (lilac-number nil))
+  ([options]
+   {:lilac-type :number, :max (:max options), :min (:min options), :options options}))
 
-(defn lilac-or [& items] {:lilac-type :or, :items items})
+(defn lilac-or
+  ([items] (lilac-or items nil))
+  ([items options] {:lilac-type :or, :items items, :options options}))
 
-(defn lilac-re [options] {:lilac-type :re, :options options})
+(defn lilac-re
+  ([re] (lilac-re re nil))
+  ([re options] {:lilac-type :re, :re re, :options options}))
 
-(defn lilac-set [item options] {:lilac-type :set, :item item, :options options})
+(defn lilac-set
+  ([item] (lilac-set item nil))
+  ([item options] {:lilac-type :set, :item item, :options options}))
 
-(defn lilac-string [options] {:lilac-type :string, :re (:re options), :options options})
+(defn lilac-string
+  ([] (lilac-string nil))
+  ([options] {:lilac-type :string, :re (:re options), :options options}))
 
-(defn lilac-symbol [options] {:lilac-type :symbol})
+(defn lilac-symbol ([] (lilac-symbol nil)) ([options] {:lilac-type :symbol}))
 
-(defn lilac-vector [item options] {:lilac-type :vector, :item item, :options options})
+(defn lilac-vector
+  ([item] (lilac-vector item nil))
+  ([item options] {:lilac-type :vector, :item item, :options options}))

@@ -27,24 +27,23 @@
 (deflilac
  lilac-method
  ()
- (lilac-or (lilac-nil) (lilac-map {:type (lilac-is :file), :file (lilac-string nil)} nil)))
+ (lilac-or [(lilac-nil) (lilac-map {:type (lilac-is :file), :file (lilac-string)})]))
 
 (deflilac
  lilac-router-path
  ()
  (lilac-map
-  {:path (lilac-string nil),
+  {:path (lilac-string),
    :get (lilac-method),
    :post (lilac-method),
    :put (lilac-method),
    :delete (lilac-method),
-   :next (lilac-or (lilac-nil) (lilac-vector (lilac-router-path) nil))}
-  nil))
+   :next (lilac-or [(lilac-nil) (lilac-vector (lilac-router-path))])}))
 
 (deflilac
  lilac-router
  ()
- (lilac-map {:port (lilac-number nil), :routes (lilac-vector (lilac-router-path) nil)} nil))
+ (lilac-map {:port (lilac-number), :routes (lilac-vector (lilac-router-path))}))
 
 (def router-data
   {:port 7800,
@@ -63,10 +62,10 @@
  test-and
  (testing
   "and number"
-  (is (=ok true (validate-lilac 10 (lilac-and (lilac-number nil) (lilac-number {:min 0}))))))
+  (is (=ok true (validate-lilac 10 (lilac-and [(lilac-number) (lilac-number {:min 0})])))))
  (testing
   "string not number"
-  (is (=ok false (validate-lilac 10 (lilac-and (lilac-number nil) (lilac-string nil)))))))
+  (is (=ok false (validate-lilac 10 (lilac-and [(lilac-number) (lilac-string)]))))))
 
 (deftest
  test-boolean
@@ -84,42 +83,38 @@
  test-list
  (testing
   "a list of boolean"
-  (is (=ok true (validate-lilac (list true true false) (lilac-list (lilac-boolean) nil)))))
+  (is (=ok true (validate-lilac (list true true false) (lilac-list (lilac-boolean))))))
  (testing
   "a empty list"
-  (is (=ok true (validate-lilac (list) (lilac-list (lilac-boolean) nil)))))
+  (is (=ok true (validate-lilac (list) (lilac-list (lilac-boolean))))))
  (testing
   "nil is not a list"
-  (is (=ok false (validate-lilac nil (lilac-list (lilac-boolean) nil)))))
+  (is (=ok false (validate-lilac nil (lilac-list (lilac-boolean))))))
  (testing
   "a list of string is not list of boolean"
-  (is (=ok false (validate-lilac (list "true" "false") (lilac-list (lilac-boolean) nil)))))
+  (is (=ok false (validate-lilac (list "true" "false") (lilac-list (lilac-boolean))))))
  (testing
   "vector is not a empty vector"
-  (is (=ok false (validate-lilac [] (lilac-list (lilac-boolean) nil)))))
+  (is (=ok false (validate-lilac [] (lilac-list (lilac-boolean))))))
  (testing
   "boolean is not a empty vector"
-  (is (=ok false (validate-lilac false (lilac-list (lilac-boolean) nil))))))
+  (is (=ok false (validate-lilac false (lilac-list (lilac-boolean)))))))
 
 (deftest
  test-map
- (testing "an empty map" (is (=ok true (validate-lilac {} (lilac-map [] nil)))))
+ (testing "an empty map" (is (=ok true (validate-lilac {} (lilac-map [])))))
  (testing
   "an map of numbers"
   (is
    (=ok
     true
-    (validate-lilac
-     {1 100, 2 200}
-     (lilac-map {1 (lilac-number nil), 2 (lilac-number nil)} nil)))))
+    (validate-lilac {1 100, 2 200} (lilac-map {1 (lilac-number), 2 (lilac-number)} nil)))))
  (testing
   "an map of numbers of not keyword/number"
   (is
    (=ok
     false
-    (validate-lilac
-     {:a 100, :b 200}
-     (lilac-map {1 (lilac-number nil), 2 (lilac-number nil)} nil)))))
+    (validate-lilac {:a 100, :b 200} (lilac-map {1 (lilac-number), 2 (lilac-number)} nil)))))
  (testing
   "an map of number and vector/string"
   (is
@@ -127,7 +122,7 @@
     true
     (validate-lilac
      {:a 100, :b ["red" "blue"]}
-     (lilac-map {:a (lilac-number nil), :b (lilac-vector (lilac-string nil) nil)} nil))))))
+     (lilac-map {:a (lilac-number), :b (lilac-vector (lilac-string))} nil))))))
 
 (deftest
  test-nil
@@ -136,9 +131,9 @@
 
 (deftest
  test-number
- (testing "a number" (is (=ok true (validate-lilac 1 (lilac-number nil)))))
- (testing "keyword not a number" (is (=ok false (validate-lilac :k (lilac-number nil)))))
- (testing "nil not a number" (is (=ok false (validate-lilac nil (lilac-number nil)))))
+ (testing "a number" (is (=ok true (validate-lilac 1 (lilac-number)))))
+ (testing "keyword not a number" (is (=ok false (validate-lilac :k (lilac-number)))))
+ (testing "nil not a number" (is (=ok false (validate-lilac nil (lilac-number)))))
  (testing
   "number larger than 100"
   (is (=ok true (validate-lilac 101 (lilac-number {:min 100})))))
@@ -150,13 +145,13 @@
  test-or
  (testing
   "number or string"
-  (is (=ok true (validate-lilac 10 (lilac-or (lilac-number nil) (lilac-string nil))))))
+  (is (=ok true (validate-lilac 10 (lilac-or [(lilac-number) (lilac-string)])))))
  (testing
   "number or string"
-  (is (=ok true (validate-lilac "10" (lilac-or (lilac-number nil) (lilac-string nil))))))
+  (is (=ok true (validate-lilac "10" (lilac-or [(lilac-number) (lilac-string)])))))
  (testing
   "keyword is not number or string"
-  (is (=ok false (validate-lilac :x (lilac-or (lilac-number nil) (lilac-string nil)))))))
+  (is (=ok false (validate-lilac :x (lilac-or [(lilac-number) (lilac-string)]))))))
 
 (deftest
  test-router-config
@@ -186,21 +181,21 @@
 
 (deftest
  test-string
- (testing "a string" (is (=ok true (validate-lilac "x" (lilac-string nil)))))
- (testing "nil not a string" (is (=ok false (validate-lilac nil (lilac-string nil)))))
- (testing "keyword not a string" (is (=ok false (validate-lilac :x (lilac-string nil))))))
+ (testing "a string" (is (=ok true (validate-lilac "x" (lilac-string)))))
+ (testing "nil not a string" (is (=ok false (validate-lilac nil (lilac-string)))))
+ (testing "keyword not a string" (is (=ok false (validate-lilac :x (lilac-string))))))
 
 (deftest
  test-vector
  (testing
   "a vector of boolean"
-  (is (=ok true (validate-lilac [true true false] (lilac-vector (lilac-boolean) nil)))))
+  (is (=ok true (validate-lilac [true true false] (lilac-vector (lilac-boolean))))))
  (testing
   "a empty vector"
-  (is (=ok true (validate-lilac [] (lilac-vector (lilac-boolean) nil)))))
+  (is (=ok true (validate-lilac [] (lilac-vector (lilac-boolean))))))
  (testing
   "list is not a empty vector"
-  (is (=ok false (validate-lilac (list) (lilac-vector (lilac-boolean) nil)))))
+  (is (=ok false (validate-lilac (list) (lilac-vector (lilac-boolean))))))
  (testing
   "boolean is not a empty vector"
-  (is (=ok false (validate-lilac false (lilac-vector (lilac-boolean) nil))))))
+  (is (=ok false (validate-lilac false (lilac-vector (lilac-boolean)))))))

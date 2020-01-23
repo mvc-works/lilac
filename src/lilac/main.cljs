@@ -9,7 +9,7 @@
 
 (defn run-demo! []
   (let [data (read-string (fs/readFileSync (path/join js/__dirname "config.edn") "utf8"))
-        result (validate-lilac data lilac-demo [])]
+        result (validate-lilac data (lilac-demo) [])]
     (println)
     (println "Result" result)))
 
