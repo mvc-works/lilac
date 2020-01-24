@@ -80,7 +80,15 @@
     true
     (validate-lilac
      {:a 100, :b ["red" "blue"]}
-     (map+ {:a (number+), :b (vector+ (string+))} nil))))))
+     (map+ {:a (number+), :b (vector+ (string+))} nil)))))
+ (testing
+  "add restriction to keys"
+  (is
+   (=ok
+    false
+    (validate-lilac
+     {:a 100, :b ["red" "blue"]}
+     (map+ {:a (number+)} {:restricted-keys #{:a}}))))))
 
 (deftest
  test-nil

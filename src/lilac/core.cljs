@@ -3,7 +3,8 @@
   (:require-macros [lilac.core])
   (:require [lilac.util :refer [re?]]
             [lilac.util :refer [preview-data]]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [clojure.set :refer [difference]]))
 
 (declare validate-set)
 
@@ -84,7 +85,7 @@
        :coord coord,
        :message (or (get-in rule [:options :message])
                     (str
-                     "expects a "
+                     "expects just "
                      (preview-data (:item rule))
                      ", got "
                      (preview-data data)))})))
@@ -236,15 +237,26 @@
       {:ok? true})))
 
 (defn validate-map [data rule coord]
-  (let [coord (conj coord 'map), pairs (:pairs rule)]
+  (let [coord (conj coord 'map), pairs (:pairs rule), restricted-keys (:restricted-keys rule)]
     (if (map? data)
-      (loop [xs pairs]
-        (if (empty? xs)
-          {:ok? true}
-          (let [[k0 r0] (first xs)
-                child-coord (conj coord k0)
-                result (validate-lilac (get data k0) r0 child-coord)]
-            (if (:ok? result) (recur (rest xs)) result))))
+      (if (or (nil? restricted-keys)
+              (and (set? restricted-keys)
+                   (every? (fn [x] (contains? restricted-keys x)) (keys data))))
+        (loop [xs pairs]
+          (if (empty? xs)
+            {:ok? true}
+            (let [[k0 r0] (first xs)
+                  child-coord (conj coord k0)
+                  result (validate-lilac (get data k0) r0 child-coord)]
+              (if (:ok? result) (recur (rest xs)) result))))
+        {:ok? false,
+         :data data,
+         :rule rule,
+         :coord coord,
+         :message (or (get-in rule [:options :message])
+                      (let [existed-keys (set (keys data))
+                            extra-keys (difference existed-keys restricted-keys)]
+                        (str "unexpected keys in map " extra-keys)))})
       {:ok? false,
        :data data,
        :rule rule,
@@ -346,7 +358,11 @@
 
 (defn map+
   ([pairs] (map+ pairs nil))
-  ([pairs options] {:lilac-type :map, :pairs pairs, :options options}))
+  ([pairs options]
+   {:lilac-type :map,
+    :pairs pairs,
+    :options options,
+    :restricted-keys (:restricted-keys options)}))
 
 (defn nil+ ([] (nil+ {})) ([options] {:lilac-type :nil}))
 
