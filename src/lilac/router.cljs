@@ -20,7 +20,13 @@
               is+
               optional+]]))
 
-(deflilac lilac-method+ () (optional+ (map+ {:type (is+ :file), :file (string+)})))
+(deflilac
+ lilac-method+
+ ()
+ (optional+
+  (map+
+   {:code (optional+ (number+)), :type (is+ :file), :file (string+)}
+   {:restricted-keys #{:code :type :file}})))
 
 (deflilac
  lilac-router-path+
@@ -31,9 +37,15 @@
    :post (lilac-method+),
    :put (lilac-method+),
    :delete (lilac-method+),
-   :next (optional+ (vector+ (lilac-router-path+)))}))
+   :next (optional+ (vector+ (lilac-router-path+)))}
+  {:restricted-keys #{:path :get :post :put :delete :next}}))
 
-(deflilac lilac-router+ () (map+ {:port (number+), :routes (vector+ (lilac-router-path+))}))
+(deflilac
+ lilac-router+
+ ()
+ (map+
+  {:port (number+), :routes (vector+ (lilac-router-path+))}
+  {:restricted-keys #{:port :routes}}))
 
 (def router-data
   {:port 7800,
