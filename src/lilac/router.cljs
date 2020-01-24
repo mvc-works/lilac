@@ -20,7 +20,10 @@
               is+
               optional+]]))
 
-(deflilac lilac-method+ () (optional+ (map+ {:type (is+ :file), :file (string+)})))
+(deflilac
+ lilac-method+
+ ()
+ (optional+ (map+ {:code (optional+ (number+)), :type (is+ :file), :file (string+)})))
 
 (deflilac
  lilac-router-path+
