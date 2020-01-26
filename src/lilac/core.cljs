@@ -143,18 +143,28 @@
                     (str "expects a regular expression, got " (preview-data data)))})))
 
 (defn validate-string [data rule coord]
-  (let [coord (conj coord 'string), re (:re rule)]
+  (let [coord (conj coord 'string), re (:re rule), nonblank? (:nonblank? rule)]
     (if (string? data)
-      (if (some? re)
-        (if (re-matches re data)
-          {:ok? true}
-          {:ok? false,
-           :data data,
-           :rule rule,
-           :coord coord,
-           :message (or (get-in rule [:options :message])
-                        (str "expects a string in " re ", got " (preview-data data)))})
-        {:ok? true})
+      (cond
+        (some? re)
+          (if (re-matches re data)
+            {:ok? true}
+            {:ok? false,
+             :data data,
+             :rule rule,
+             :coord coord,
+             :message (or (get-in rule [:options :message])
+                          (str "expects a string in " re ", got " (preview-data data)))})
+        (some? nonblank?)
+          (if (and nonblank? (string/blank? data))
+            {:ok? false,
+             :data data,
+             :rule rule,
+             :coord coord,
+             :message (or (get-in rule [:options :message])
+                          (str "expects nonblank string , got " (preview-data data)))}
+            {:ok? true})
+        :else {:ok? true})
       {:ok? false,
        :data data,
        :rule rule,
@@ -391,7 +401,11 @@
 
 (defn string+
   ([] (string+ nil))
-  ([options] {:lilac-type :string, :re (:re options), :options options}))
+  ([options]
+   {:lilac-type :string,
+    :re (:re options),
+    :nonblank? (:nonblank? options),
+    :options options}))
 
 (defn symbol+ ([] (symbol+ nil)) ([options] {:lilac-type :symbol}))
 
