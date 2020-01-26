@@ -159,7 +159,10 @@
  test-string
  (testing "a string" (is (=ok true (validate-lilac "x" (string+)))))
  (testing "nil not a string" (is (=ok false (validate-lilac nil (string+)))))
- (testing "keyword not a string" (is (=ok false (validate-lilac :x (string+))))))
+ (testing "keyword not a string" (is (=ok false (validate-lilac :x (string+)))))
+ (testing "blank string" (is (=ok true (validate-lilac "" (string+ {:nonblank? false})))))
+ (testing "blank string" (is (=ok false (validate-lilac "" (string+ {:nonblank? true})))))
+ (testing "blank string" (is (=ok true (validate-lilac "x" (string+ {:nonblank? true}))))))
 
 (deftest
  test-vector
