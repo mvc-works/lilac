@@ -1,9 +1,9 @@
 {
   :source-paths ["src" "macros"]
-  :repositories {
-    "central" {:url "https://maven.aliyun.com/nexus/content/groups/public/"}
-    "clojars" {:url "https://mirrors.ustc.edu.cn/clojars/"}
-  }
+  ; :repositories {
+  ;   "central" {:url "https://maven.aliyun.com/nexus/content/groups/public/"}
+  ;   "clojars" {:url "https://mirrors.ustc.edu.cn/clojars/"}
+  ; }
   :dependencies [
     [medley "1.2.0"]
   ]
@@ -14,6 +14,9 @@
     }
     :test {
       :target :node-test, :output-to "target/test.js", :ns-regexp "test$", :autorun true
+    }
+    :test-only {
+      :target :node-test, :output-to "target/test.js", :ns-regexp "test$"
     }
   }
 }

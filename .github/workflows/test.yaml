@@ -1,0 +1,16 @@
+
+name: Run tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: Tests
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: docker://timbru31/java-node:latest
+      - uses: actions/checkout@v2
+      - name: run tests
+        run: 'yarn && yarn shadow-cljs compile test-only && node ./target/test.js'
