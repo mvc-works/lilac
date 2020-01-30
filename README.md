@@ -7,7 +7,7 @@ Lilac: some validation functions in ClojureScript
 [![Clojars Project](https://img.shields.io/clojars/v/mvc-works/lilac.svg)](https://clojars.org/mvc-works/lilac)
 
 ```edn
-[mvc-works/lilac "0.0.2"]
+[mvc-works/lilac "0.0.3"]
 ```
 
 ```clojure
@@ -19,7 +19,41 @@ Lilac: some validation functions in ClojureScript
   (or+ (number+) (string+)))
 ```
 
-Lilac was initially designed to validate recursive data, with a "component" concept begined `deflilac`:
+If validation is passed, it returns:
+
+```edn
+{:ok? true}
+```
+
+or the return value would contain informations why it's not correct:
+
+```edn
+{:ok? false
+ :data x
+ :rule x
+ :coord []
+ :message "failure reason..."
+ :formatted-message "formatted failure reason..."}
+```
+
+#### APIs
+
+Supported APIs:
+
+```clojure
+(:require [lilac.core :refer [validate-lilac deflilac register-custom-rule!
+           optional+ keyword+ boolean+ number+ string+ custom+ vector+
+           list+ map+ not+ and+ set+ nil+ or+ is+]])
+```
+
+For more details browse source code:
+
+* https://github.com/mvc-works/lilac/blob/master/src/lilac/test.cljs
+* https://github.com/mvc-works/lilac/blob/master/src/lilac/router.cljs
+
+#### Recursive data
+
+Lilac is designed to validate recursive data, based on a "component" concept begined `deflilac`:
 
 ```clojure
 (require '[lilac.core :refer [deflilac map+ string+]])
@@ -29,31 +63,49 @@ Lilac was initially designed to validate recursive data, with a "component" conc
          :children (vector+ (lilac-tree+))}))
 ```
 
-To added custom behaviors, do dirty work to:
+#### Custom rules
+
+To provide `lilac.core/custom+`:
 
 ```clojure
-(swap! lilac.core/*custom-methods assoc :x (fn [x...] (x...)))
+(defn method-1 [x]
+  (if (and (> x 10) (< x 20))
+    {:ok? true}
+    {:ok? false, :message (str "expects number between 10 amd 20, got " x)}))
+
+(testing "validating number with custom function"
+  (is (=ok true (validate-lilac 11 (custom+ method-1)))))
 ```
 
-If data does not pass validation, you may find by `:ok? false` and got message:
+To added custom validation type called `method-2+` (something like `number+`), use an API:
 
 ```clojure
-(validate-lilac data lilac-demo+) ; {:ok? false, :formatted-message "..."}
+(defn validate-method-2 [data rule coord]
+  (if (and (> data 10) (< data 20))
+    {:ok? true}
+    {:ok? false,
+     :data data,
+     :rule rule,
+     :coord coord,
+     :message (str "expects number between 10 amd 20, got " data)}))
+
+(defn method-2+ [] {:lilac-type :method-2})
+
+(lilac.core/register-custom-rule! :method-2 validate-method-2)
+
+(testing "validating number with custom function"
+  (is (=ok true (validate-lilac 11 (method-2+)))))
 ```
 
 ### Contribute to project
 
 If you like the idea in Lilac, fork the project and develop on your own intention. This project does not accept large changes.
 
-The project is developed based on Cirru toolchains. Clojure code are compiled from `calcit.cirru`. Make sure you are using [Calcit Editor](https://github.com/Cirru/calcit-editor) if you need the fix to be merged.
+The project is developed with Cirru toolchains. Clojure code are compiled from `calcit.cirru`. Make sure you are using [Calcit Editor](https://github.com/Cirru/calcit-editor) if you need the fix to be merged.
 
 ### Naming
 
-Since Lilac has APIs similar to `number` `or` `and` `vector`, which are core functions/variables in Clojure. I have to add prefix/suffix in names.
-
-Lilac uses suffix of `+` in APIs, why? Look at this picture:
-
-![lilac picture](assets/lilac-720x480.jpg)
+Since Lilac has APIs similar to `number` `or` `and` `vector`, which are core functions/variables in Clojure. I have to add prefix/suffix in names. Lilac uses suffix of `+` in APIs, inspired by [lilac](assets/lilac-720x480.jpg)
 
 ### License
 

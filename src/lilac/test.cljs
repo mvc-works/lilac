@@ -4,22 +4,23 @@
             [lilac.core
              :refer
              [validate-lilac
-              number+
-              string+
+              deflilac
+              optional+
               keyword+
               boolean+
-              nil+
+              number+
+              string+
+              custom+
               vector+
               list+
               map+
-              set+
-              deflilac
-              or+
-              and+
               not+
-              custom+
+              and+
+              set+
+              nil+
+              or+
               is+
-              optional+]]
+              register-custom-rule!]]
             [lilac.router :refer [lilac-router+ router-data]]))
 
 (defn =ok [x obj] (= x (:ok? obj)))
@@ -46,6 +47,35 @@
  test-component-args
  (testing "number 10 > 8" (is (=ok true (validate-lilac 10 (lilac-good-number+ 8)))))
  (testing "number 10 not > 18" (is (=ok false (validate-lilac 10 (lilac-good-number+ 18))))))
+
+(deftest
+ test-custom
+ (let [method-1 (fn [x]
+                  (if (and (> x 10) (< x 20))
+                    {:ok? true}
+                    {:ok? false, :message (str "expects number between 10 amd 20, got " x)}))]
+   (testing
+    "validating number with custom function"
+    (is (=ok true (validate-lilac 11 (custom+ method-1)))))
+   (testing
+    "validating number with custom function"
+    (is (=ok false (validate-lilac 21 (custom+ method-1))))))
+ (let [validate-method-2 (fn [data rule coord]
+                           (if (and (> data 10) (< data 20))
+                             {:ok? true}
+                             {:ok? false,
+                              :data data,
+                              :rule rule,
+                              :coord coord,
+                              :message (str "expects number between 10 amd 20, got " data)}))
+       method-2+ (fn [] {:lilac-type :method-2})]
+   (register-custom-rule! :method-2 validate-method-2)
+   (testing
+    "validating number with custom function"
+    (is (=ok true (validate-lilac 11 (method-2+)))))
+   (testing
+    "validating number with custom function"
+    (is (=ok false (validate-lilac 21 (method-2+)))))))
 
 (deftest
  test-list

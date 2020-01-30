@@ -60,9 +60,9 @@
        :data data,
        :rule rule,
        :coord next-coord,
-       :message (or (get-in rule [:options :message])
-                    "failed to validate with custom method"),
-       :next result})))
+       :message (or (:message result)
+                    (get-in rule [:options :message])
+                    "failed to validate with custom method")})))
 
 (defn validate-fn [data rule coord]
   (let [next-coord (conj coord 'fn)]
@@ -394,6 +394,12 @@
   ([items options] {:lilac-type :or, :items items, :options options}))
 
 (defn re+ ([re] (re+ re nil)) ([re options] {:lilac-type :re, :re re, :options options}))
+
+(defn register-custom-rule! [type-name f]
+  (assert (keyword? type-name) "expects type name in keyword")
+  (assert (fn? f) "expects validation method in function")
+  (println "registering validation rule" type-name)
+  (swap! *custom-methods assoc type-name f))
 
 (defn set+
   ([item] (set+ item nil))
