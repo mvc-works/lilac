@@ -7,7 +7,7 @@ Lilac: some validation functions in ClojureScript
 [![Clojars Project](https://img.shields.io/clojars/v/mvc-works/lilac.svg)](https://clojars.org/mvc-works/lilac)
 
 ```edn
-[mvc-works/lilac "0.0.3"]
+[mvc-works/lilac "0.0.4"]
 ```
 
 ```clojure
@@ -53,7 +53,7 @@ For more details browse source code:
 
 #### Recursive data
 
-Lilac is designed to validate recursive data, based on a "component" concept begined `deflilac`:
+Lilac is designed to validate recursive data, based on a "component" concept behind `deflilac`:
 
 ```clojure
 (require '[lilac.core :refer [deflilac map+ string+]])
@@ -105,7 +105,7 @@ The project is developed with Cirru toolchains. Clojure code are compiled from `
 
 ### Naming
 
-Since Lilac has APIs similar to `number` `or` `and` `vector`, which are core functions/variables in Clojure. I have to add prefix/suffix in names. Lilac uses suffix of `+` in APIs, inspired by [lilac](assets/lilac-720x480.jpg)
+Since Lilac has APIs similar to `number` `or` `and` `vector`, which are core functions/variables in Clojure. I have to add prefix/suffix in names. Lilac uses suffix of `+` in APIs, inspired by [lilac](assets/lilac-720x480.jpg).
 
 ### License
 
