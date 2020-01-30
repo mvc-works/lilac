@@ -3,22 +3,22 @@
   (:require [lilac.core
              :refer
              [validate-lilac
-              number+
-              string+
+              deflilac
+              optional+
               keyword+
               boolean+
-              nil+
+              number+
+              string+
+              custom+
               vector+
               list+
               map+
-              set+
-              deflilac
-              or+
-              and+
               not+
-              custom+
-              is+
-              optional+]]))
+              and+
+              set+
+              nil+
+              or+
+              is+]]))
 
 (deflilac
  lilac-method+

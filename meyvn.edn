@@ -1,7 +1,7 @@
 
 {:pom {:group-id "mvc-works",
        :artifact-id "lilac",
-       :version "0.0.3",
+       :version "0.0.4-a1",
        :name "Some validation functions"}
  :packaging {:jar {:enabled true
                    :remote-repository {:id "clojars"
