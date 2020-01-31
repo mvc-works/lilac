@@ -46,6 +46,22 @@ Supported APIs:
            list+ map+ not+ and+ set+ nil+ or+ is+]])
 ```
 
+For example:
+
+```clojure
+(validate-lilac 10 (and+ [(number+) (number+ {:min 0})]))
+
+(validate-lilac 10 (or+ [(number+) (string+)]))
+
+(validate-lilac nil (optional+ (number+)))
+
+(validate-lilac
+  {:a 100, :b ["red" "blue"]}
+  (map+ {:a (number+)} {:restricted-keys #{:a}}))
+
+(deflilac lilac-good-number+ (n) (number+ {:min n}))
+```
+
 For more details browse source code:
 
 * https://github.com/mvc-works/lilac/blob/master/src/lilac/test.cljs
@@ -73,8 +89,7 @@ To provide `lilac.core/custom+`:
     {:ok? true}
     {:ok? false, :message (str "expects number between 10 amd 20, got " x)}))
 
-(testing "validating number with custom function"
-  (is (=ok true (validate-lilac 11 (custom+ method-1)))))
+(validate-lilac 11 (custom+ method-1))
 ```
 
 To added custom validation type called `method-2+` (something like `number+`), use an API:
@@ -93,8 +108,7 @@ To added custom validation type called `method-2+` (something like `number+`), u
 
 (lilac.core/register-custom-rule! :method-2 validate-method-2)
 
-(testing "validating number with custom function"
-  (is (=ok true (validate-lilac 11 (method-2+)))))
+(validate-lilac 11 (method-2+))
 ```
 
 ### Contribute to project
