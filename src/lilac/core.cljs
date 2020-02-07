@@ -16,6 +16,8 @@
 
 (declare validate-optional)
 
+(declare validate-map)
+
 (declare validate-not)
 
 (declare validate-or)
@@ -32,7 +34,9 @@
 
 (defn and+
   ([items] (and+ items nil))
-  ([items options] {:lilac-type :and, :items items, :options options}))
+  ([items options]
+   (assert (vector? items) "expects items of and+ in vector")
+   {:lilac-type :and, :items items, :options options}))
 
 (defn boolean+ ([] (boolean+ nil)) ([options] {:lilac-type :boolean}))
 
@@ -218,7 +222,9 @@
                     (str "expects a set, got " (preview-data data)))})))
 
 (defn validate-record [data rule coord]
-  (let [coord (conj coord 'map), pairs (:pairs rule), restricted-keys (:restricted-keys rule)]
+  (let [coord (conj coord 'record)
+        pairs (:pairs rule)
+        restricted-keys (:restricted-keys rule)]
     (if (map? data)
       (if (or (nil? restricted-keys)
               (and (set? restricted-keys)
@@ -237,7 +243,7 @@
          :message (or (get-in rule [:options :message])
                       (let [existed-keys (set (keys data))
                             extra-keys (difference existed-keys restricted-keys)]
-                        (str "unexpected keys in map " extra-keys)))})
+                        (str "unexpected keys in map " extra-keys " among " restricted-keys)))})
       {:ok? false,
        :data data,
        :rule rule,
@@ -273,6 +279,24 @@
        :message (get-in rule [:options :message] "expects a inverted value in \"not\""),
        :next result}
       {:ok? true})))
+
+(defn validate-map [data rule coord]
+  (let [key-rule (:key-shape rule), item-rule (:item rule), coord (conj coord 'map)]
+    (if (map? data)
+      (loop [xs data]
+        (if (empty? xs)
+          {:ok? true}
+          (let [[k v] (first xs)
+                child-coord (conj coord k)
+                k-result (validate-lilac k key-rule child-coord)
+                result (validate-lilac v item-rule child-coord)]
+            (if (:ok? k-result) (if (:ok? result) (recur (rest xs)) result) k-result))))
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord coord,
+       :message (or (get-in rule [:options :message])
+                    (str "expects a map, got " (preview-data data)))})))
 
 (defn validate-list [data rule coord]
   (let [item-rule (:item rule), coord (conj coord 'list)]
@@ -342,6 +366,7 @@
    :re validate-re,
    :vector validate-vector,
    :record validate-record,
+   :map validate-map,
    :list validate-list,
    :set validate-set,
    :not validate-not,
@@ -366,6 +391,11 @@
   ([item] (list+ item nil))
   ([item options] {:lilac-type :list, :item item, :options options}))
 
+(defn map+
+  ([key-shape item] (map+ key-shape item nil))
+  ([key-shape item options]
+   {:lilac-type :map, :key-shape key-shape, :item item, :options options}))
+
 (defn nil+ ([] (nil+ {})) ([options] {:lilac-type :nil}))
 
 (defn not+
@@ -383,7 +413,9 @@
 
 (defn or+
   ([items] (or+ items nil))
-  ([items options] {:lilac-type :or, :items items, :options options}))
+  ([items options]
+   (assert (vector? items) "expects items of or+ in vector")
+   {:lilac-type :or, :items items, :options options}))
 
 (defn re+ ([re] (re+ re nil)) ([re options] {:lilac-type :re, :re re, :options options}))
 

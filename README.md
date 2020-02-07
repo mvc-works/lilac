@@ -43,7 +43,7 @@ Supported APIs:
 ```clojure
 (:require [lilac.core :refer [validate-lilac deflilac register-custom-rule!
            optional+ keyword+ boolean+ number+ string+ custom+ vector+
-           list+ record+ not+ and+ set+ nil+ or+ is+]])
+           list+ record+ not+ and+ map+ set+ nil+ or+ is+]])
 ```
 
 For example:
@@ -61,6 +61,8 @@ For example:
 
 (deflilac lilac-good-number+ (n) (number+ {:min n}))
 ```
+
+Notice: in Lilac, a "map" with specific keys are called a "record". Use `map+` for dictionaries.
 
 For more details browse source code:
 

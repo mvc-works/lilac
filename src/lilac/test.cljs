@@ -14,6 +14,7 @@
               vector+
               list+
               record+
+              map+
               not+
               and+
               set+
@@ -93,6 +94,27 @@
  (testing
   "boolean is not a empty vector"
   (is (=ok false (validate-lilac false (list+ (boolean+)))))))
+
+(deftest
+ test-map
+ (testing
+  "a map of strings"
+  (is (=ok true (validate-lilac {"a" "a", "b" "b"} (map+ (string+) (string+))))))
+ (testing
+  "a map of strings has no keyword"
+  (is (=ok false (validate-lilac {:a "a", "b" "b"} (map+ (string+) (string+))))))
+ (testing
+  "a map of keyword/number"
+  (is (=ok true (validate-lilac {:a 1, :b 2} (map+ (keyword+) (number+))))))
+ (testing
+  "a map of keyword/number not number/keyword"
+  (is (=ok false (validate-lilac {:a 1, 2 :b} (map+ (keyword+) (number+))))))
+ (testing
+  "a map of keyword/number or keyword/string"
+  (is
+   (=ok
+    true
+    (validate-lilac {:a 1, :b "two"} (map+ (keyword+) (or+ [(number+) (string+)])))))))
 
 (deftest
  test-nil
