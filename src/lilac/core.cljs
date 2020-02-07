@@ -224,32 +224,49 @@
 (defn validate-record [data rule coord]
   (let [coord (conj coord 'record)
         pairs (:pairs rule)
-        restricted-keys (:restricted-keys rule)]
+        exact-keys? (:exact-keys? rule)
+        check-keys? (:check-keys? rule)
+        default-message (get-in rule [:options :message])
+        check-values (fn []
+                       (loop [xs pairs]
+                         (if (empty? xs)
+                           {:ok? true}
+                           (let [[k0 r0] (first xs)
+                                 child-coord (conj coord k0)
+                                 result (validate-lilac (get data k0) r0 child-coord)]
+                             (if (:ok? result) (recur (rest xs)) result)))))]
     (if (map? data)
-      (if (or (nil? restricted-keys)
-              (and (set? restricted-keys)
-                   (every? (fn [x] (contains? restricted-keys x)) (keys data))))
-        (loop [xs pairs]
-          (if (empty? xs)
-            {:ok? true}
-            (let [[k0 r0] (first xs)
-                  child-coord (conj coord k0)
-                  result (validate-lilac (get data k0) r0 child-coord)]
-              (if (:ok? result) (recur (rest xs)) result))))
-        {:ok? false,
-         :data data,
-         :rule rule,
-         :coord coord,
-         :message (or (get-in rule [:options :message])
-                      (let [existed-keys (set (keys data))
-                            extra-keys (difference existed-keys restricted-keys)]
-                        (str "unexpected keys in map " extra-keys " among " restricted-keys)))})
+      (if exact-keys?
+        (let [wanted-keys (set (keys pairs)), existed-keys (set (keys data))]
+          (if (= wanted-keys existed-keys)
+            (if check-keys?
+              (if (empty? (difference existed-keys wanted-keys))
+                (check-values)
+                {:ok? false,
+                 :data data,
+                 :rule rule,
+                 :coord coord,
+                 :message (or default-message
+                              (let [extra-keys (difference existed-keys wanted-keys)]
+                                (str "unexpected record keys " extra-keys " for " wanted-keys)))})
+              (check-values))
+            {:ok? false,
+             :data data,
+             :rule rule,
+             :coord coord,
+             :message (or default-message
+                          (let [extra-keys (difference existed-keys wanted-keys)
+                                missing-keys (difference wanted-keys existed-keys)]
+                            (if (not (empty? extra-keys))
+                              (str "unexpected record keys " extra-keys " for " wanted-keys)
+                              (str "missing record keys " missing-keys " of " wanted-keys))))}))
+        (check-values))
       {:ok? false,
        :data data,
        :rule rule,
        :coord coord,
        :message (or (get-in rule [:options :message])
-                    (str "expects a map, got " (preview-data data)))})))
+                    (str "expects a record, got " (preview-data data)))})))
 
 (defn validate-or [data rule coord]
   (let [items (:items rule), next-coord (conj coord 'or)]
@@ -425,7 +442,8 @@
    {:lilac-type :record,
     :pairs pairs,
     :options options,
-    :restricted-keys (:restricted-keys options)}))
+    :exact-keys? (:exact-keys? options),
+    :check-keys? (:check-keys? options)}))
 
 (defn register-custom-rule! [type-name f]
   (assert (keyword? type-name) "expects type name in keyword")

@@ -174,13 +174,25 @@
      {:a 100, :b ["red" "blue"]}
      (record+ {:a (number+), :b (vector+ (string+))} nil)))))
  (testing
-  "add restriction to keys"
+  "confirm two keys"
   (is
    (=ok
     false
     (validate-lilac
      {:a 100, :b ["red" "blue"]}
-     (record+ {:a (number+)} {:restricted-keys #{:a}}))))))
+     (record+ {:a (number+)} {:exact-keys? true}))))
+  (is
+   (=ok
+    false
+    (validate-lilac {:a 100} (record+ {:a (number+), :b (number+)} {:exact-keys? true})))))
+ (testing
+  "confirm keys"
+  (is
+   (=ok
+    true
+    (validate-lilac
+     {:a 1, :b 1}
+     (record+ {:a (number+), :b (number+)} {:exact-keys? true}))))))
 
 (deftest
  test-router-config
