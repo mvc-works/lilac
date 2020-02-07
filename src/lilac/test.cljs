@@ -13,6 +13,7 @@
               custom+
               vector+
               list+
+              record+
               map+
               not+
               and+
@@ -96,29 +97,24 @@
 
 (deftest
  test-map
- (testing "an empty map" (is (=ok true (validate-lilac {} (map+ [])))))
  (testing
-  "an map of numbers"
-  (is (=ok true (validate-lilac {1 100, 2 200} (map+ {1 (number+), 2 (number+)} nil)))))
+  "a map of strings"
+  (is (=ok true (validate-lilac {"a" "a", "b" "b"} (map+ (string+) (string+))))))
  (testing
-  "an map of numbers of not keyword/number"
-  (is (=ok false (validate-lilac {:a 100, :b 200} (map+ {1 (number+), 2 (number+)} nil)))))
+  "a map of strings has no keyword"
+  (is (=ok false (validate-lilac {:a "a", "b" "b"} (map+ (string+) (string+))))))
  (testing
-  "an map of number and vector/string"
+  "a map of keyword/number"
+  (is (=ok true (validate-lilac {:a 1, :b 2} (map+ (keyword+) (number+))))))
+ (testing
+  "a map of keyword/number not number/keyword"
+  (is (=ok false (validate-lilac {:a 1, 2 :b} (map+ (keyword+) (number+))))))
+ (testing
+  "a map of keyword/number or keyword/string"
   (is
    (=ok
     true
-    (validate-lilac
-     {:a 100, :b ["red" "blue"]}
-     (map+ {:a (number+), :b (vector+ (string+))} nil)))))
- (testing
-  "add restriction to keys"
-  (is
-   (=ok
-    false
-    (validate-lilac
-     {:a 100, :b ["red" "blue"]}
-     (map+ {:a (number+)} {:restricted-keys #{:a}}))))))
+    (validate-lilac {:a 1, :b "two"} (map+ (keyword+) (or+ [(number+) (string+)])))))))
 
 (deftest
  test-nil
@@ -158,6 +154,45 @@
  (testing
   "keyword is not number or string"
   (is (=ok false (validate-lilac :x (or+ [(number+) (string+)]))))))
+
+(deftest
+ test-record
+ (testing "an empty record" (is (=ok true (validate-lilac {} (record+ [])))))
+ (testing
+  "an record of numbers"
+  (is (=ok true (validate-lilac {1 100, 2 200} (record+ {1 (number+), 2 (number+)} nil)))))
+ (testing
+  "an record of numbers of not keyword/number"
+  (is
+   (=ok false (validate-lilac {:a 100, :b 200} (record+ {1 (number+), 2 (number+)} nil)))))
+ (testing
+  "an record of number and vector/string"
+  (is
+   (=ok
+    true
+    (validate-lilac
+     {:a 100, :b ["red" "blue"]}
+     (record+ {:a (number+), :b (vector+ (string+))} nil)))))
+ (testing
+  "confirm two keys"
+  (is
+   (=ok
+    false
+    (validate-lilac
+     {:a 100, :b ["red" "blue"]}
+     (record+ {:a (number+)} {:exact-keys? true}))))
+  (is
+   (=ok
+    false
+    (validate-lilac {:a 100} (record+ {:a (number+), :b (number+)} {:exact-keys? true})))))
+ (testing
+  "confirm keys"
+  (is
+   (=ok
+    true
+    (validate-lilac
+     {:a 1, :b 1}
+     (record+ {:a (number+), :b (number+)} {:exact-keys? true}))))))
 
 (deftest
  test-router-config

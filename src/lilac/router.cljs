@@ -12,7 +12,7 @@
               custom+
               vector+
               list+
-              map+
+              record+
               not+
               and+
               set+
@@ -24,28 +24,26 @@
  lilac-method+
  ()
  (optional+
-  (map+
+  (record+
    {:code (optional+ (number+)), :type (is+ :file), :file (string+)}
-   {:restricted-keys #{:code :type :file}})))
+   {:check-keys? true})))
 
 (deflilac
  lilac-router-path+
  ()
- (map+
+ (record+
   {:path (string+),
    :get (lilac-method+),
    :post (lilac-method+),
    :put (lilac-method+),
    :delete (lilac-method+),
    :next (optional+ (vector+ (lilac-router-path+)))}
-  {:restricted-keys #{:path :get :post :put :delete :next}}))
+  {:valid-keys? true}))
 
 (deflilac
  lilac-router+
  ()
- (map+
-  {:port (number+), :routes (vector+ (lilac-router-path+))}
-  {:restricted-keys #{:port :routes}}))
+ (record+ {:port (number+), :routes (vector+ (lilac-router-path+))} {:exact-keys? true}))
 
 (def router-data
   {:port 7800,
