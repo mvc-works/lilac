@@ -13,7 +13,7 @@
               custom+
               vector+
               list+
-              map+
+              record+
               not+
               and+
               set+
@@ -95,32 +95,6 @@
   (is (=ok false (validate-lilac false (list+ (boolean+)))))))
 
 (deftest
- test-map
- (testing "an empty map" (is (=ok true (validate-lilac {} (map+ [])))))
- (testing
-  "an map of numbers"
-  (is (=ok true (validate-lilac {1 100, 2 200} (map+ {1 (number+), 2 (number+)} nil)))))
- (testing
-  "an map of numbers of not keyword/number"
-  (is (=ok false (validate-lilac {:a 100, :b 200} (map+ {1 (number+), 2 (number+)} nil)))))
- (testing
-  "an map of number and vector/string"
-  (is
-   (=ok
-    true
-    (validate-lilac
-     {:a 100, :b ["red" "blue"]}
-     (map+ {:a (number+), :b (vector+ (string+))} nil)))))
- (testing
-  "add restriction to keys"
-  (is
-   (=ok
-    false
-    (validate-lilac
-     {:a 100, :b ["red" "blue"]}
-     (map+ {:a (number+)} {:restricted-keys #{:a}}))))))
-
-(deftest
  test-nil
  (testing "a nil" (is (=ok true (validate-lilac nil (nil+)))))
  (testing "string not nil" (is (=ok false (validate-lilac "x" (nil+))))))
@@ -158,6 +132,33 @@
  (testing
   "keyword is not number or string"
   (is (=ok false (validate-lilac :x (or+ [(number+) (string+)]))))))
+
+(deftest
+ test-record
+ (testing "an empty record" (is (=ok true (validate-lilac {} (record+ [])))))
+ (testing
+  "an record of numbers"
+  (is (=ok true (validate-lilac {1 100, 2 200} (record+ {1 (number+), 2 (number+)} nil)))))
+ (testing
+  "an record of numbers of not keyword/number"
+  (is
+   (=ok false (validate-lilac {:a 100, :b 200} (record+ {1 (number+), 2 (number+)} nil)))))
+ (testing
+  "an record of number and vector/string"
+  (is
+   (=ok
+    true
+    (validate-lilac
+     {:a 100, :b ["red" "blue"]}
+     (record+ {:a (number+), :b (vector+ (string+))} nil)))))
+ (testing
+  "add restriction to keys"
+  (is
+   (=ok
+    false
+    (validate-lilac
+     {:a 100, :b ["red" "blue"]}
+     (record+ {:a (number+)} {:restricted-keys #{:a}}))))))
 
 (deftest
  test-router-config

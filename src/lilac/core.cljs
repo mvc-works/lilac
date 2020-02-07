@@ -8,13 +8,13 @@
 
 (declare validate-set)
 
+(declare validate-record)
+
 (declare core-methods)
 
 (declare validate-and)
 
 (declare validate-optional)
-
-(declare validate-map)
 
 (declare validate-not)
 
@@ -217,6 +217,34 @@
        :message (or (get-in rule [:options :message])
                     (str "expects a set, got " (preview-data data)))})))
 
+(defn validate-record [data rule coord]
+  (let [coord (conj coord 'map), pairs (:pairs rule), restricted-keys (:restricted-keys rule)]
+    (if (map? data)
+      (if (or (nil? restricted-keys)
+              (and (set? restricted-keys)
+                   (every? (fn [x] (contains? restricted-keys x)) (keys data))))
+        (loop [xs pairs]
+          (if (empty? xs)
+            {:ok? true}
+            (let [[k0 r0] (first xs)
+                  child-coord (conj coord k0)
+                  result (validate-lilac (get data k0) r0 child-coord)]
+              (if (:ok? result) (recur (rest xs)) result))))
+        {:ok? false,
+         :data data,
+         :rule rule,
+         :coord coord,
+         :message (or (get-in rule [:options :message])
+                      (let [existed-keys (set (keys data))
+                            extra-keys (difference existed-keys restricted-keys)]
+                        (str "unexpected keys in map " extra-keys)))})
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord coord,
+       :message (or (get-in rule [:options :message])
+                    (str "expects a map, got " (preview-data data)))})))
+
 (defn validate-or [data rule coord]
   (let [items (:items rule), next-coord (conj coord 'or)]
     (loop [xs items, branches []]
@@ -245,34 +273,6 @@
        :message (get-in rule [:options :message] "expects a inverted value in \"not\""),
        :next result}
       {:ok? true})))
-
-(defn validate-map [data rule coord]
-  (let [coord (conj coord 'map), pairs (:pairs rule), restricted-keys (:restricted-keys rule)]
-    (if (map? data)
-      (if (or (nil? restricted-keys)
-              (and (set? restricted-keys)
-                   (every? (fn [x] (contains? restricted-keys x)) (keys data))))
-        (loop [xs pairs]
-          (if (empty? xs)
-            {:ok? true}
-            (let [[k0 r0] (first xs)
-                  child-coord (conj coord k0)
-                  result (validate-lilac (get data k0) r0 child-coord)]
-              (if (:ok? result) (recur (rest xs)) result))))
-        {:ok? false,
-         :data data,
-         :rule rule,
-         :coord coord,
-         :message (or (get-in rule [:options :message])
-                      (let [existed-keys (set (keys data))
-                            extra-keys (difference existed-keys restricted-keys)]
-                        (str "unexpected keys in map " extra-keys)))})
-      {:ok? false,
-       :data data,
-       :rule rule,
-       :coord coord,
-       :message (or (get-in rule [:options :message])
-                    (str "expects a map, got " (preview-data data)))})))
 
 (defn validate-list [data rule coord]
   (let [item-rule (:item rule), coord (conj coord 'list)]
@@ -341,7 +341,7 @@
    :number validate-number,
    :re validate-re,
    :vector validate-vector,
-   :map validate-map,
+   :record validate-record,
    :list validate-list,
    :set validate-set,
    :not validate-not,
@@ -366,14 +366,6 @@
   ([item] (list+ item nil))
   ([item options] {:lilac-type :list, :item item, :options options}))
 
-(defn map+
-  ([pairs] (map+ pairs nil))
-  ([pairs options]
-   {:lilac-type :map,
-    :pairs pairs,
-    :options options,
-    :restricted-keys (:restricted-keys options)}))
-
 (defn nil+ ([] (nil+ {})) ([options] {:lilac-type :nil}))
 
 (defn not+
@@ -394,6 +386,14 @@
   ([items options] {:lilac-type :or, :items items, :options options}))
 
 (defn re+ ([re] (re+ re nil)) ([re options] {:lilac-type :re, :re re, :options options}))
+
+(defn record+
+  ([pairs] (record+ pairs nil))
+  ([pairs options]
+   {:lilac-type :record,
+    :pairs pairs,
+    :options options,
+    :restricted-keys (:restricted-keys options)}))
 
 (defn register-custom-rule! [type-name f]
   (assert (keyword? type-name) "expects type name in keyword")

@@ -43,7 +43,7 @@ Supported APIs:
 ```clojure
 (:require [lilac.core :refer [validate-lilac deflilac register-custom-rule!
            optional+ keyword+ boolean+ number+ string+ custom+ vector+
-           list+ map+ not+ and+ set+ nil+ or+ is+]])
+           list+ record+ not+ and+ set+ nil+ or+ is+]])
 ```
 
 For example:
@@ -57,7 +57,7 @@ For example:
 
 (validate-lilac
   {:a 100, :b ["red" "blue"]}
-  (map+ {:a (number+)} {:restricted-keys #{:a}}))
+  (record+ {:a (number+)} {:restricted-keys #{:a}}))
 
 (deflilac lilac-good-number+ (n) (number+ {:min n}))
 ```
@@ -72,10 +72,10 @@ For more details browse source code:
 Lilac is designed to validate recursive data, based on a "component" concept behind `deflilac`:
 
 ```clojure
-(require '[lilac.core :refer [deflilac map+ string+]])
+(require '[lilac.core :refer [deflilac record+ string+]])
 
 (deflilac lilac-tree+ []
-  (map+ {:name (string+)
+  (record+ {:name (string+)
          :children (vector+ (lilac-tree+))}))
 ```
 

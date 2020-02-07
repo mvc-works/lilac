@@ -2,7 +2,7 @@
 (ns lilac.main
   (:require [lilac.core
              :refer
-             [number+ or+ deflilac validate-lilac string+ map+ not+ nil+ vector+]]
+             [number+ or+ deflilac validate-lilac string+ record+ not+ nil+ vector+]]
             [cljs.reader :refer [read-string]]
             [lilac.router :refer [router-data lilac-router+]]))
 

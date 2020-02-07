@@ -12,7 +12,7 @@
               custom+
               vector+
               list+
-              map+
+              record+
               not+
               and+
               set+
@@ -24,14 +24,14 @@
  lilac-method+
  ()
  (optional+
-  (map+
+  (record+
    {:code (optional+ (number+)), :type (is+ :file), :file (string+)}
    {:restricted-keys #{:code :type :file}})))
 
 (deflilac
  lilac-router-path+
  ()
- (map+
+ (record+
   {:path (string+),
    :get (lilac-method+),
    :post (lilac-method+),
@@ -43,7 +43,7 @@
 (deflilac
  lilac-router+
  ()
- (map+
+ (record+
   {:port (number+), :routes (vector+ (lilac-router-path+))}
   {:restricted-keys #{:port :routes}}))
 
