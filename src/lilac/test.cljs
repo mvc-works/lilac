@@ -174,25 +174,39 @@
      {:a 100, :b ["red" "blue"]}
      (record+ {:a (number+), :b (vector+ (string+))} nil)))))
  (testing
-  "confirm two keys"
+  "exact two keys"
   (is
    (=ok
     false
     (validate-lilac
      {:a 100, :b ["red" "blue"]}
-     (record+ {:a (number+)} {:exact-keys? true}))))
+     (record+ {:a (number+)} {:exact-keys? true})))))
+ (testing
+  "exact two keys"
   (is
    (=ok
     false
     (validate-lilac {:a 100} (record+ {:a (number+), :b (number+)} {:exact-keys? true})))))
  (testing
+  "check two keys"
+  (is
+   (=ok
+    false
+    (validate-lilac
+     {:a 100, :b ["red" "blue"]}
+     (record+ {:a (number+)} {:check-keys? true})))))
+ (testing
+  "check two keys"
+  (is
+   (=ok
+    false
+    (validate-lilac {:a 100} (record+ {:a (number+), :b (number+)} {:check-keys? true})))))
+ (testing
   "confirm keys"
   (is
    (=ok
     true
-    (validate-lilac
-     {:a 1, :b 1}
-     (record+ {:a (number+), :b (number+)} {:exact-keys? true}))))))
+    (validate-lilac {:a 1, :b 1} (record+ {:a (number+), :b (number+)} {:exact-keys? true}))))))
 
 (deftest
  test-router-config
