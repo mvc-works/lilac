@@ -227,6 +227,8 @@
         exact-keys? (:exact-keys? rule)
         check-keys? (:check-keys? rule)
         default-message (get-in rule [:options :message])
+        wanted-keys (set (keys pairs))
+        existed-keys (if (map? data) (set (keys data)))
         check-values (fn []
                        (loop [xs pairs]
                          (if (empty? xs)
@@ -235,21 +237,17 @@
                                  child-coord (conj coord k0)
                                  result (validate-lilac (get data k0) r0 child-coord)]
                              (if (:ok? result) (recur (rest xs)) result)))))]
-    (if (map? data)
-      (if exact-keys?
-        (let [wanted-keys (set (keys pairs)), existed-keys (set (keys data))]
-          (if (= wanted-keys existed-keys)
-            (if check-keys?
-              (if (empty? (difference existed-keys wanted-keys))
-                (check-values)
-                {:ok? false,
-                 :data data,
-                 :rule rule,
-                 :coord coord,
-                 :message (or default-message
-                              (let [extra-keys (difference existed-keys wanted-keys)]
-                                (str "unexpected record keys " extra-keys " for " wanted-keys)))})
-              (check-values))
+    (if (not (map? data))
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord coord,
+       :message (or (get-in rule [:options :message])
+                    (str "expects a record, got " (preview-data data)))}
+      (cond
+        exact-keys?
+          (if (= existed-keys wanted-keys)
+            (check-values)
             {:ok? false,
              :data data,
              :rule rule,
@@ -259,14 +257,18 @@
                                 missing-keys (difference wanted-keys existed-keys)]
                             (if (not (empty? extra-keys))
                               (str "unexpected record keys " extra-keys " for " wanted-keys)
-                              (str "missing record keys " missing-keys " of " wanted-keys))))}))
-        (check-values))
-      {:ok? false,
-       :data data,
-       :rule rule,
-       :coord coord,
-       :message (or (get-in rule [:options :message])
-                    (str "expects a record, got " (preview-data data)))})))
+                              (str "missing record keys " missing-keys " of " wanted-keys))))})
+        check-keys?
+          (if (empty? (difference existed-keys wanted-keys))
+            (check-values)
+            {:ok? false,
+             :data data,
+             :rule rule,
+             :coord coord,
+             :message (or default-message
+                          (let [extra-keys (difference existed-keys wanted-keys)]
+                            (str "unexpected record keys " extra-keys " for " wanted-keys)))})
+        :else (check-values)))))
 
 (defn validate-or [data rule coord]
   (let [items (:items rule), next-coord (conj coord 'or)]
