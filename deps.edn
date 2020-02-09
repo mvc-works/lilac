@@ -1,2 +1,6 @@
 
-{:paths ["src" "macros"]}
+{:paths ["src" "macros"]
+ :aliases {:depstar {:extra-deps {seancorfield/depstar {:mvn/version "0.5.2"}}
+                     :main-opts ["-m" "hf.depstar.uberjar" "target/lilac.jar"]}
+           :deploy {:extra-deps {deps-deploy {:mvn/version "RELEASE"}}
+                    :main-opts ["-m" "deps-deploy.deps-deploy" "deploy" "target/lilac.jar"]}}}
