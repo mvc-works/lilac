@@ -5,6 +5,13 @@
   <artifactId>lilac</artifactId>
   <version>0.1.0-dev2</version>
   <name>lilac</name>
+
+  <url>https://github.com/mvc-works/lilac</url>
+  <description>Data validation tookits.</description>
+  <scm>
+    <url>https://github.com/mvc-works/lilac</url>
+  </scm>
+
   <dependencies>
     <dependency>
       <groupId>org.clojure</groupId>
