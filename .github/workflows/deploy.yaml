@@ -12,7 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: docker://clojure:tools-deps
+      - run: curl -O https://download.clojure.org/install/linux-install-1.10.1.507.sh && chmod +x linux-install-1.10.1.507.sh && sudo ./linux-install-1.10.1.507.sh
+
       - uses: actions/checkout@v2
 
       - name: Cache Clojars
@@ -29,4 +30,4 @@ jobs:
         run: 'yarn && yarn shadow-cljs compile test-only && node ./target/test.js'
 
       - name: deploy to clojars
-        run: env CLOJARS_USERNAME=username CLOJARS_PASSWORD=${{ secrets.CLOJARS_PASSWORD }} clojure -A:depstar && clojure -A:deploy
+        run: clojure -A:depstar && env CLOJARS_USERNAME=jiyinyiyong CLOJARS_PASSWORD=${{ secrets.CLOJARS_PASSWORD }} clojure -A:deploy
