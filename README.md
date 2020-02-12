@@ -7,7 +7,7 @@ Lilac: some validation functions in ClojureScript
 [![Clojars Project](https://img.shields.io/clojars/v/mvc-works/lilac.svg)](https://clojars.org/mvc-works/lilac)
 
 ```edn
-[mvc-works/lilac "0.1.0"]
+[mvc-works/lilac "0.1.1-a1"]
 ```
 
 ```clojure
@@ -42,7 +42,7 @@ Supported APIs:
 
 ```clojure
 (:require [lilac.core :refer [validate-lilac deflilac register-custom-rule!
-           optional+ keyword+ boolean+ number+ string+ custom+ vector+
+           optional+ keyword+ boolean+ number+ string+ custom+ tuple+ vector+
            list+ record+ not+ and+ map+ set+ nil+ or+ is+]])
 ```
 
@@ -62,7 +62,10 @@ For example:
 (deflilac lilac-good-number+ (n) (number+ {:min n}))
 ```
 
-Notice: in Lilac, a "map" with specific keys are called a "record". Use `map+` for dictionaries.
+Notice:
+
+* in Lilac, a "map" with specific keys are called a "record". Use `map+` for dictionaries.
+* `tuple+` is a vector with each item in specific type. Use `:in-list?` for list instead of vector.
 
 Meanings of record options:
 
