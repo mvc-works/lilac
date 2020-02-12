@@ -12,6 +12,7 @@
               string+
               custom+
               vector+
+              tuple+
               list+
               record+
               map+
@@ -242,6 +243,26 @@
  (testing "blank string" (is (=ok true (validate-lilac "" (string+ {:nonblank? false})))))
  (testing "blank string" (is (=ok false (validate-lilac "" (string+ {:nonblank? true})))))
  (testing "blank string" (is (=ok true (validate-lilac "x" (string+ {:nonblank? true}))))))
+
+(deftest
+ test-tuple
+ (testing "an empty tuple" (is (=ok true (validate-lilac [] (tuple+ [])))))
+ (testing
+  "check an empty tuple in list"
+  (is (=ok false (validate-lilac (list) (tuple+ [])))))
+ (testing
+  "an empty tuple in list"
+  (is (=ok true (validate-lilac (list) (tuple+ [] {:in-list? true})))))
+ (testing
+  "tuple of number string boolean"
+  (is (=ok true (validate-lilac [1 "1" true] (tuple+ [(number+) (string+) (boolean+)])))))
+ (testing
+  "tuple not vector"
+  (is
+   (=ok false (validate-lilac (list 1 "1" true) (tuple+ [(number+) (string+) (boolean+)])))))
+ (testing
+  "tuple not right type"
+  (is (=ok false (validate-lilac [1 "1" true] (tuple+ [(number+) (number+) (boolean+)]))))))
 
 (deftest
  test-vector

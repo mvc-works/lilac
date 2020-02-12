@@ -16,6 +16,8 @@
 
 (declare validate-optional)
 
+(declare validate-tuple)
+
 (declare validate-map)
 
 (declare validate-not)
@@ -203,6 +205,45 @@
        :coord coord,
        :message (or (get-in rule [:options :message])
                     (str "expects a vector, got " (preview-data data)))})))
+
+(defn validate-tuple [data rule coord]
+  (let [items (:items rule)
+        next-coord (conj coord 'tuple)
+        in-list? (:in-list? rule)
+        check-values (fn []
+                       (loop [xs items, ys data, idx 0]
+                         (if (empty? xs)
+                           {:ok? true}
+                           (let [r0 (first xs)
+                                 y0 (first ys)
+                                 child-coord (conj next-coord idx)
+                                 result (validate-lilac y0 r0 child-coord)]
+                             (if (:ok? result)
+                               (recur (rest xs) (rest ys) (inc idx))
+                               {:ok? false,
+                                :coord next-coord,
+                                :rule rule,
+                                :data y0,
+                                :message (get-in
+                                          rule
+                                          [:options :message]
+                                          "failed validating in \"tuple\""),
+                                :next result})))))]
+    (if in-list?
+      (if (list? data)
+        (check-values)
+        {:ok? false,
+         :data data,
+         :rule rule,
+         :coord coord,
+         :message (str "expects a list for tuple, got " (preview-data data))})
+      (if (vector? data)
+        (check-values)
+        {:ok? false,
+         :data data,
+         :rule rule,
+         :coord coord,
+         :message (str "expects a vector for tuple, got " (preview-data data))}))))
 
 (defn validate-set [data rule coord]
   (let [item-rule (:item rule), coord (conj coord 'set)]
@@ -394,7 +435,8 @@
    :custom validate-custom,
    :component validate-component,
    :is validate-is,
-   :optional validate-optional})
+   :optional validate-optional,
+   :tuple validate-tuple})
 
 (defn custom+
   ([f] (custom+ f nil))
@@ -466,6 +508,12 @@
     :options options}))
 
 (defn symbol+ ([] (symbol+ nil)) ([options] {:lilac-type :symbol}))
+
+(defn tuple+
+  ([items] (tuple+ items nil))
+  ([items options]
+   (assert (vector? items) "expects items of tuple+ in vector")
+   {:lilac-type :tuple, :items items, :options options, :in-list? (:in-list? options)}))
 
 (defn vector+
   ([item] (vector+ item nil))
