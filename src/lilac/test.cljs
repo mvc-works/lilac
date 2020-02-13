@@ -270,7 +270,13 @@
    (=ok false (validate-lilac (list 1 "1" true) (tuple+ [(number+) (string+) (boolean+)])))))
  (testing
   "tuple not right type"
-  (is (=ok false (validate-lilac [1 "1" true] (tuple+ [(number+) (number+) (boolean+)]))))))
+  (is (=ok false (validate-lilac [1 "1" true] (tuple+ [(number+) (number+) (boolean+)])))))
+ (testing
+  "tuple not right type"
+  (is (=ok false (validate-lilac [1 "1"] (tuple+ [(number+)] {:check-size? true})))))
+ (testing
+  "tuple not right type"
+  (is (=ok true (validate-lilac [1 "1"] (tuple+ [(number+)] {:check-size? false}))))))
 
 (deftest
  test-vector

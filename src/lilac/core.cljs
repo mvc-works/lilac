@@ -227,10 +227,26 @@
   (let [items (:items rule)
         next-coord (conj coord 'tuple)
         in-list? (:in-list? rule)
+        check-size? (:check-size? rule)
         check-values (fn []
                        (loop [xs items, ys data, idx 0]
                          (if (empty? xs)
-                           {:ok? true}
+                           (if check-size?
+                             (if (and (empty? ys) (= (count items) (count data)))
+                               {:ok? true}
+                               {:ok? false,
+                                :coord next-coord,
+                                :rule rule,
+                                :data ys,
+                                :message (get-in
+                                          rule
+                                          [:options :message]
+                                          (str
+                                           "expects tuple of "
+                                           (count items)
+                                           " items, got "
+                                           (count data)))})
+                             {:ok? true})
                            (let [r0 (first xs)
                                  y0 (first ys)
                                  child-coord (conj next-coord idx)
@@ -531,7 +547,11 @@
   ([items] (tuple+ items nil))
   ([items options]
    (assert (vector? items) "expects items of tuple+ in vector")
-   {:lilac-type :tuple, :items items, :options options, :in-list? (:in-list? options)}))
+   {:lilac-type :tuple,
+    :items items,
+    :options options,
+    :in-list? (:in-list? options),
+    :check-size? (:check-size? options)}))
 
 (defn vector+
   ([item] (vector+ item nil))
