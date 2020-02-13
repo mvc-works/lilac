@@ -7,7 +7,7 @@ Lilac: some validation functions in ClojureScript
 [![Clojars Project](https://img.shields.io/clojars/v/mvc-works/lilac.svg)](https://clojars.org/mvc-works/lilac)
 
 ```edn
-[mvc-works/lilac "0.1.1-a1"]
+[mvc-works/lilac "0.1.1-a2"]
 ```
 
 ```clojure
@@ -43,7 +43,7 @@ Supported APIs:
 ```clojure
 (:require [lilac.core :refer [validate-lilac deflilac register-custom-rule!
            optional+ keyword+ boolean+ number+ string+ custom+ tuple+ vector+
-           list+ record+ not+ and+ map+ set+ nil+ or+ is+]])
+           list+ record+ not+ and+ map+ any+ set+ nil+ or+ is+]])
 ```
 
 For example:

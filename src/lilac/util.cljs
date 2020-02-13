@@ -13,7 +13,8 @@
     (set? x) "a set"
     (list? x) "a list"
     (nil? x) "nil"
-    :else (str "Unknown(" (subs (str x) 0 10) ")")))
+    (seq? x) "a seq"
+    :else (str "Unknown: " (subs (str x) 0 10))))
 
 (def type-of-re (type #"x"))
 

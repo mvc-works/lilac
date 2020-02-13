@@ -40,6 +40,10 @@
    (assert (vector? items) "expects items of and+ in vector")
    {:lilac-type :and, :items items, :options options}))
 
+(defn any+
+  ([] (any+ nil))
+  ([options] {:lilac-type :any, :options options, :some? (:some? options)}))
+
 (defn boolean+ ([] (boolean+ nil)) ([options] {:lilac-type :boolean}))
 
 (defn format-message [acc result]
@@ -47,6 +51,19 @@
     acc
     (let [message (str (:message result) " at " (vec (remove symbol? (:coord result))))]
       (recur (str acc (if (some? acc) "\n" "") message) (:next result)))))
+
+(defn validate-any [data rule coord]
+  (let [coord (conj coord 'number), something? (:some? rule)]
+    (if something?
+      (if (some? data)
+        {:ok? true}
+        {:ok? false,
+         :data data,
+         :rule rule,
+         :coord coord,
+         :message (or (get-in rule [:options :message])
+                      (str "expects something, got " (preview-data data)))})
+      {:ok? true})))
 
 (defn validate-boolean [data rule coord]
   (if (boolean? data)
@@ -210,10 +227,26 @@
   (let [items (:items rule)
         next-coord (conj coord 'tuple)
         in-list? (:in-list? rule)
+        check-size? (:check-size? rule)
         check-values (fn []
                        (loop [xs items, ys data, idx 0]
                          (if (empty? xs)
-                           {:ok? true}
+                           (if check-size?
+                             (if (and (empty? ys) (= (count items) (count data)))
+                               {:ok? true}
+                               {:ok? false,
+                                :coord next-coord,
+                                :rule rule,
+                                :data ys,
+                                :message (get-in
+                                          rule
+                                          [:options :message]
+                                          (str
+                                           "expects tuple of "
+                                           (count items)
+                                           " items, got "
+                                           (count data)))})
+                             {:ok? true})
                            (let [r0 (first xs)
                                  y0 (first ys)
                                  child-coord (conj next-coord idx)
@@ -436,7 +469,8 @@
    :component validate-component,
    :is validate-is,
    :optional validate-optional,
-   :tuple validate-tuple})
+   :tuple validate-tuple,
+   :any validate-any})
 
 (defn custom+
   ([f] (custom+ f nil))
@@ -513,7 +547,11 @@
   ([items] (tuple+ items nil))
   ([items options]
    (assert (vector? items) "expects items of tuple+ in vector")
-   {:lilac-type :tuple, :items items, :options options, :in-list? (:in-list? options)}))
+   {:lilac-type :tuple,
+    :items items,
+    :options options,
+    :in-list? (:in-list? options),
+    :check-size? (:check-size? options)}))
 
 (defn vector+
   ([item] (vector+ item nil))
