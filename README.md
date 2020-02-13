@@ -43,7 +43,7 @@ Supported APIs:
 ```clojure
 (:require [lilac.core :refer [validate-lilac deflilac register-custom-rule!
            optional+ keyword+ boolean+ number+ string+ custom+ tuple+ vector+
-           list+ record+ not+ and+ map+ set+ nil+ or+ is+]])
+           list+ record+ not+ and+ map+ any+ set+ nil+ or+ is+]])
 ```
 
 For example:

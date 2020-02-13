@@ -40,6 +40,10 @@
    (assert (vector? items) "expects items of and+ in vector")
    {:lilac-type :and, :items items, :options options}))
 
+(defn any+
+  ([] (any+ nil))
+  ([options] {:lilac-type :any, :options options, :some? (:some? options)}))
+
 (defn boolean+ ([] (boolean+ nil)) ([options] {:lilac-type :boolean}))
 
 (defn format-message [acc result]
@@ -47,6 +51,19 @@
     acc
     (let [message (str (:message result) " at " (vec (remove symbol? (:coord result))))]
       (recur (str acc (if (some? acc) "\n" "") message) (:next result)))))
+
+(defn validate-any [data rule coord]
+  (let [coord (conj coord 'number), something? (:some? rule)]
+    (if something?
+      (if (some? data)
+        {:ok? true}
+        {:ok? false,
+         :data data,
+         :rule rule,
+         :coord coord,
+         :message (or (get-in rule [:options :message])
+                      (str "expects something, got " (preview-data data)))})
+      {:ok? true})))
 
 (defn validate-boolean [data rule coord]
   (if (boolean? data)
@@ -436,7 +453,8 @@
    :component validate-component,
    :is validate-is,
    :optional validate-optional,
-   :tuple validate-tuple})
+   :tuple validate-tuple,
+   :any validate-any})
 
 (defn custom+
   ([f] (custom+ f nil))

@@ -17,6 +17,7 @@
               record+
               map+
               not+
+              any+
               and+
               set+
               nil+
@@ -37,6 +38,13 @@
  (testing
   "string not number"
   (is (=ok false (validate-lilac 10 (and+ [(number+) (string+)]))))))
+
+(deftest
+ test-any
+ (testing "a nil" (is (=ok true (validate-lilac nil (any+)))))
+ (testing "any in string" (is (=ok true (validate-lilac "x" (any+)))))
+ (testing "something" (is (=ok true (validate-lilac "x" (any+ {:some? true})))))
+ (testing "need something" (is (=ok false (validate-lilac nil (any+ {:some? true}))))))
 
 (deftest
  test-boolean
