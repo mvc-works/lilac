@@ -163,6 +163,25 @@
   (is (=ok false (validate-lilac "1" (optional+ (number+)))))))
 
 (deftest
+ test-optional-record
+ (testing
+  "record with optional"
+  (is
+   (=ok
+    false
+    (validate-lilac
+     {1 100}
+     (record+ {1 (number+), 2 (number+)} {:all-optional? false, :check-keys? true})))))
+ (testing
+  "record not with optional"
+  (is
+   (=ok
+    true
+    (validate-lilac
+     {1 100}
+     (record+ {1 (number+), 2 (number+)} {:all-optional? true, :check-keys? true}))))))
+
+(deftest
  test-or
  (testing
   "number or string"

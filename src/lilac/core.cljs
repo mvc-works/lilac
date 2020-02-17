@@ -311,6 +311,7 @@
         pairs (:pairs rule)
         exact-keys? (:exact-keys? rule)
         check-keys? (:check-keys? rule)
+        all-optional? (:all-optional? rule)
         default-message (get-in rule [:options :message])
         wanted-keys (set (keys pairs))
         existed-keys (if (map? data) (set (keys data)))
@@ -320,8 +321,11 @@
                            {:ok? true}
                            (let [[k0 r0] (first xs)
                                  child-coord (conj coord k0)
-                                 result (validate-lilac (get data k0) r0 child-coord)]
-                             (if (:ok? result) (recur (rest xs)) result)))))]
+                                 v (get data k0)]
+                             (if (and all-optional? (nil? v))
+                               (recur (rest xs))
+                               (let [result (validate-lilac v r0 child-coord)]
+                                 (if (:ok? result) (recur (rest xs)) result)))))))]
     (if (not (map? data))
       {:ok? false,
        :data data,
@@ -543,7 +547,8 @@
     :pairs pairs,
     :options options,
     :exact-keys? (:exact-keys? options),
-    :check-keys? (:check-keys? options)}))
+    :check-keys? (:check-keys? options),
+    :all-optional? (:all-optional? options)}))
 
 (defn register-custom-rule! [type-name f]
   (assert (keyword? type-name) "expects type name in keyword")
