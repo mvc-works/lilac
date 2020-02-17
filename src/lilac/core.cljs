@@ -87,6 +87,17 @@
                     (get-in rule [:options :message])
                     "failed to validate with custom method")})))
 
+(defn validate-enum [data rule coord]
+  (let [coord (conj coord 'enum), items (:items rule)]
+    (if (contains? items data)
+      {:ok? true}
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord coord,
+       :message (or (get-in rule [:options :message])
+                    (str "expects value of " (pr-str items) ", got " (preview-data data)))})))
+
 (defn validate-fn [data rule coord]
   (let [next-coord (conj coord 'fn)]
     (if (fn? data)
@@ -470,11 +481,22 @@
    :is validate-is,
    :optional validate-optional,
    :tuple validate-tuple,
-   :any validate-any})
+   :any validate-any,
+   :enum validate-enum})
 
 (defn custom+
   ([f] (custom+ f nil))
   ([f options] {:lilac-type :custom, :fn f, :options options}))
+
+(defn enum+
+  ([x] (enum+ x nil))
+  ([items options]
+   {:lilac-type :enum,
+    :items (cond
+      (set? items) items
+      (vector? items) (set items)
+      (list? items) (set items)
+      :else (do (js/console.warn "Unknown items") items))}))
 
 (defn fn+ ([] (fn+ nil)) ([options] {:lilac-type :fn, :options options}))
 

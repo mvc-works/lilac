@@ -15,6 +15,7 @@
               tuple+
               list+
               record+
+              enum+
               map+
               not+
               any+
@@ -86,6 +87,15 @@
    (testing
     "validating number with custom function"
     (is (=ok false (validate-lilac 21 (method-2+)))))))
+
+(deftest
+ test-enum
+ (testing "1 in enum" (is (=ok true (validate-lilac 1 (enum+ #{1 2 3 "4"})))))
+ (testing "string 4 in enum" (is (=ok true (validate-lilac "4" (enum+ #{1 2 3 "4"})))))
+ (testing "4 not in enum" (is (=ok false (validate-lilac 4 (enum+ #{1 2 3 "4"})))))
+ (testing
+  "100 not in enum with vector"
+  (is (=ok false (validate-lilac 100 (enum+ [1 2 3]))))))
 
 (deftest
  test-list
