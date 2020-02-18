@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>mvc-works</groupId>
   <artifactId>lilac</artifactId>
-  <version>0.1.2-a1</version>
+  <version>0.1.2</version>
   <name>lilac</name>
 
   <url>https://github.com/mvc-works/lilac</url>
