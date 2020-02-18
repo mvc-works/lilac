@@ -16,7 +16,7 @@ Lilac: some validation functions in ClojureScript
 (validate-lilac 1 (number+))
 
 (validate-lilac 1
-  (or+ (number+) (string+)))
+  (or+ [(number+) (string+)]))
 ```
 
 If validation is passed, it returns:
