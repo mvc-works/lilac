@@ -15,6 +15,7 @@
               tuple+
               list+
               record+
+              enum+
               map+
               not+
               any+
@@ -88,6 +89,15 @@
     (is (=ok false (validate-lilac 21 (method-2+)))))))
 
 (deftest
+ test-enum
+ (testing "1 in enum" (is (=ok true (validate-lilac 1 (enum+ #{1 2 3 "4"})))))
+ (testing "string 4 in enum" (is (=ok true (validate-lilac "4" (enum+ #{1 2 3 "4"})))))
+ (testing "4 not in enum" (is (=ok false (validate-lilac 4 (enum+ #{1 2 3 "4"})))))
+ (testing
+  "100 not in enum with vector"
+  (is (=ok false (validate-lilac 100 (enum+ [1 2 3]))))))
+
+(deftest
  test-list
  (testing
   "a list of boolean"
@@ -151,6 +161,25 @@
  (testing
   "not not fit optional number"
   (is (=ok false (validate-lilac "1" (optional+ (number+)))))))
+
+(deftest
+ test-optional-record
+ (testing
+  "record with optional"
+  (is
+   (=ok
+    false
+    (validate-lilac
+     {1 100}
+     (record+ {1 (number+), 2 (number+)} {:all-optional? false, :check-keys? true})))))
+ (testing
+  "record not with optional"
+  (is
+   (=ok
+    true
+    (validate-lilac
+     {1 100}
+     (record+ {1 (number+), 2 (number+)} {:all-optional? true, :check-keys? true}))))))
 
 (deftest
  test-or

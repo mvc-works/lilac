@@ -87,6 +87,17 @@
                     (get-in rule [:options :message])
                     "failed to validate with custom method")})))
 
+(defn validate-enum [data rule coord]
+  (let [coord (conj coord 'enum), items (:items rule)]
+    (if (contains? items data)
+      {:ok? true}
+      {:ok? false,
+       :data data,
+       :rule rule,
+       :coord coord,
+       :message (or (get-in rule [:options :message])
+                    (str "expects value of " (pr-str items) ", got " (preview-data data)))})))
+
 (defn validate-fn [data rule coord]
   (let [next-coord (conj coord 'fn)]
     (if (fn? data)
@@ -300,6 +311,7 @@
         pairs (:pairs rule)
         exact-keys? (:exact-keys? rule)
         check-keys? (:check-keys? rule)
+        all-optional? (:all-optional? rule)
         default-message (get-in rule [:options :message])
         wanted-keys (set (keys pairs))
         existed-keys (if (map? data) (set (keys data)))
@@ -309,8 +321,11 @@
                            {:ok? true}
                            (let [[k0 r0] (first xs)
                                  child-coord (conj coord k0)
-                                 result (validate-lilac (get data k0) r0 child-coord)]
-                             (if (:ok? result) (recur (rest xs)) result)))))]
+                                 v (get data k0)]
+                             (if (and all-optional? (nil? v))
+                               (recur (rest xs))
+                               (let [result (validate-lilac v r0 child-coord)]
+                                 (if (:ok? result) (recur (rest xs)) result)))))))]
     (if (not (map? data))
       {:ok? false,
        :data data,
@@ -470,11 +485,22 @@
    :is validate-is,
    :optional validate-optional,
    :tuple validate-tuple,
-   :any validate-any})
+   :any validate-any,
+   :enum validate-enum})
 
 (defn custom+
   ([f] (custom+ f nil))
   ([f options] {:lilac-type :custom, :fn f, :options options}))
+
+(defn enum+
+  ([x] (enum+ x nil))
+  ([items options]
+   {:lilac-type :enum,
+    :items (cond
+      (set? items) items
+      (vector? items) (set items)
+      (list? items) (set items)
+      :else (do (js/console.warn "Unknown items") items))}))
 
 (defn fn+ ([] (fn+ nil)) ([options] {:lilac-type :fn, :options options}))
 
@@ -521,7 +547,8 @@
     :pairs pairs,
     :options options,
     :exact-keys? (:exact-keys? options),
-    :check-keys? (:check-keys? options)}))
+    :check-keys? (:check-keys? options),
+    :all-optional? (:all-optional? options)}))
 
 (defn register-custom-rule! [type-name f]
   (assert (keyword? type-name) "expects type name in keyword")

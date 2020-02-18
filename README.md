@@ -43,7 +43,7 @@ Supported APIs:
 ```clojure
 (:require [lilac.core :refer [validate-lilac deflilac register-custom-rule!
            optional+ keyword+ boolean+ number+ string+ custom+ tuple+ vector+
-           list+ record+ not+ and+ map+ any+ set+ nil+ or+ is+]])
+           list+ record+ enum+ not+ and+ map+ any+ set+ nil+ or+ is+]])
 ```
 
 For example:
@@ -54,6 +54,8 @@ For example:
 (validate-lilac 10 (or+ [(number+) (string+)]))
 
 (validate-lilac nil (optional+ (number+)))
+
+(validate-lilac :a (enum+ #{:a :b :c}))
 
 (validate-lilac
   {:a 100, :b ["red" "blue"]}
@@ -69,8 +71,9 @@ Notice:
 
 Meanings of record options:
 
-* `exact-keys?`, keys are exactly the same as rules, no more no fewer
-* `check-keys?`, keys are inside the rules, no more
+* `:exact-keys?`, keys are exactly the same as rules, no more no fewer
+* `:check-keys?`, keys are inside the rules, no more
+* `:all-optional?`, mark all keys as optional
 
 For more details browse source code:
 
