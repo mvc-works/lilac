@@ -112,7 +112,10 @@
   (is (=ok false (validate-lilac [] (list+ (boolean+))))))
  (testing
   "boolean is not a empty vector"
-  (is (=ok false (validate-lilac false (list+ (boolean+)))))))
+  (is (=ok false (validate-lilac false (list+ (boolean+))))))
+ (testing
+  "allow seq for list"
+  (is (=ok true (validate-lilac (concat [1] [2]) (list+ (number+) {:allow-seq? true}))))))
 
 (deftest
  test-map
@@ -318,4 +321,7 @@
   (is (=ok false (validate-lilac (list) (vector+ (boolean+))))))
  (testing
   "boolean is not a empty vector"
-  (is (=ok false (validate-lilac false (vector+ (boolean+)))))))
+  (is (=ok false (validate-lilac false (vector+ (boolean+))))))
+ (testing
+  "allow seq in vector"
+  (is (=ok true (validate-lilac (concat [1] [2]) (vector+ (number+) {:allow-seq? true}))))))
