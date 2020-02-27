@@ -112,7 +112,10 @@
   (is (=ok false (validate-lilac [] (list+ (boolean+))))))
  (testing
   "boolean is not a empty vector"
-  (is (=ok false (validate-lilac false (list+ (boolean+)))))))
+  (is (=ok false (validate-lilac false (list+ (boolean+))))))
+ (testing
+  "allow vector for list"
+  (is (=ok true (validate-lilac [1] (list+ (number+) {:allow-vector? true}))))))
 
 (deftest
  test-map
@@ -318,4 +321,7 @@
   (is (=ok false (validate-lilac (list) (vector+ (boolean+))))))
  (testing
   "boolean is not a empty vector"
-  (is (=ok false (validate-lilac false (vector+ (boolean+)))))))
+  (is (=ok false (validate-lilac false (vector+ (boolean+))))))
+ (testing
+  "allow list in vector"
+  (is (=ok true (validate-lilac (list 1) (vector+ (number+) {:allow-list? true}))))))
