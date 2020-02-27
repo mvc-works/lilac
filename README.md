@@ -80,7 +80,7 @@ For more details browse source code:
 * https://github.com/mvc-works/lilac/blob/master/src/lilac/test.cljs
 * https://github.com/mvc-works/lilac/blob/master/src/lilac/router.cljs
 
-For vectors, `:allow-list? true` to accept lists. For lists, `:allow-vector? true` to accept vectors.
+For vectors and lists, `:allow-seq? true` to accept lazy sequences.
 
 #### Recursive data
 

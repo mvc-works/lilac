@@ -218,8 +218,8 @@
                     (str "expects a symbol, got " (preview-data data)))})))
 
 (defn validate-vector [data rule coord]
-  (let [item-rule (:item rule), coord (conj coord 'vector), allow-list? (:allow-list? rule)]
-    (if (or (vector? data) (if allow-list? (list? data) false))
+  (let [item-rule (:item rule), coord (conj coord 'vector), allow-seq? (:allow-seq? rule)]
+    (if (or (vector? data) (if allow-seq? (seq? data) false))
       (loop [xs data, idx 0]
         (if (empty? xs)
           {:ok? true}
@@ -407,8 +407,8 @@
                     (str "expects a map, got " (preview-data data)))})))
 
 (defn validate-list [data rule coord]
-  (let [item-rule (:item rule), coord (conj coord 'list), allow-vector? (:allow-vector? rule)]
-    (if (or (list? data) (if allow-vector? (vector? data) false))
+  (let [item-rule (:item rule), coord (conj coord 'list), allow-seq? (:allow-seq? rule)]
+    (if (or (list? data) (if allow-seq? (seq? data) false))
       (loop [xs data, idx 0]
         (if (empty? xs)
           {:ok? true}
@@ -511,10 +511,7 @@
 (defn list+
   ([item] (list+ item nil))
   ([item options]
-   {:lilac-type :list,
-    :item item,
-    :options options,
-    :allow-vector? (:allow-vector? options)}))
+   {:lilac-type :list, :item item, :options options, :allow-seq? (:allow-seq? options)}))
 
 (defn map+
   ([key-shape item] (map+ key-shape item nil))
@@ -587,4 +584,4 @@
 (defn vector+
   ([item] (vector+ item nil))
   ([item options]
-   {:lilac-type :vector, :item item, :options options, :allow-list? (:allow-list? options)}))
+   {:lilac-type :vector, :item item, :options options, :allow-seq? (:allow-seq? options)}))

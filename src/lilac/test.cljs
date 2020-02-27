@@ -114,8 +114,8 @@
   "boolean is not a empty vector"
   (is (=ok false (validate-lilac false (list+ (boolean+))))))
  (testing
-  "allow vector for list"
-  (is (=ok true (validate-lilac [1] (list+ (number+) {:allow-vector? true}))))))
+  "allow seq for list"
+  (is (=ok true (validate-lilac (concat [1] [2]) (list+ (number+) {:allow-seq? true}))))))
 
 (deftest
  test-map
@@ -323,5 +323,5 @@
   "boolean is not a empty vector"
   (is (=ok false (validate-lilac false (vector+ (boolean+))))))
  (testing
-  "allow list in vector"
-  (is (=ok true (validate-lilac (list 1) (vector+ (number+) {:allow-list? true}))))))
+  "allow seq in vector"
+  (is (=ok true (validate-lilac (concat [1] [2]) (vector+ (number+) {:allow-seq? true}))))))
