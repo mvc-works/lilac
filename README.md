@@ -7,7 +7,7 @@ Lilac: some validation functions in ClojureScript
 [![Clojars Project](https://img.shields.io/clojars/v/mvc-works/lilac.svg)](https://clojars.org/mvc-works/lilac)
 
 ```edn
-[mvc-works/lilac "0.1.3-a1"]
+[mvc-works/lilac "0.1.3"]
 ```
 
 ```clojure
