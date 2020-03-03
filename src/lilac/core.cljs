@@ -504,6 +504,8 @@
 
 (defn fn+ ([] (fn+ nil)) ([options] {:lilac-type :fn, :options options}))
 
+(def in-dev? (do ^boolean js/goog.DEBUG))
+
 (defn is+ ([x] (is+ x nil)) ([x options] {:lilac-type :is, :item x}))
 
 (defn keyword+ ([] (keyword+ nil)) ([options] {:lilac-type :keyword, :options options}))
