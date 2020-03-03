@@ -7,7 +7,7 @@ Lilac: some validation functions in ClojureScript
 [![Clojars Project](https://img.shields.io/clojars/v/mvc-works/lilac.svg)](https://clojars.org/mvc-works/lilac)
 
 ```edn
-[mvc-works/lilac "0.1.3"]
+[mvc-works/lilac "0.1.4-a1"]
 ```
 
 ```clojure
@@ -43,7 +43,7 @@ Supported APIs:
 ```clojure
 (:require [lilac.core :refer [validate-lilac deflilac register-custom-rule!
            optional+ keyword+ boolean+ number+ string+ custom+ tuple+ vector+
-           list+ record+ enum+ not+ and+ map+ any+ set+ nil+ or+ is+]])
+           list+ record+ enum+ not+ and+ map+ any+ set+ nil+ or+ is+ dev-check]])
 ```
 
 For example:
@@ -62,6 +62,12 @@ For example:
   (record+ {:a (number+)} {:exact-keys? true}))
 
 (deflilac lilac-good-number+ (n) (number+ {:min n}))
+```
+
+Or use a shortcut with `js/console.error`, which only runs where `js/goog.DEBUG` is true:
+
+```clojure
+(dev-check 1 (number+))
 ```
 
 Notice:
