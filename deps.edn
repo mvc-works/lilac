@@ -1,6 +1,7 @@
 
 {
   :paths ["src" "macros"]
+  :deps {}
   :aliases {
     :release {
       :extra-deps {
