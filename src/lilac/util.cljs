@@ -1,6 +1,12 @@
 
 (ns lilac.util )
 
+(defn check-keys [message data xs]
+  (let [valid-keys (set xs), real-keys (keys data)]
+    (doseq [k real-keys]
+      (when (not (contains? valid-keys k))
+        (js/console.warn message "unexpected key" (pr-str k) ", expect" (pr-str valid-keys))))))
+
 (defn preview-data [x]
   (cond
     (string? x) (pr-str x)
