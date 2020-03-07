@@ -1,8 +1,7 @@
 
 (ns lilac.core
   (:require-macros [lilac.core])
-  (:require [lilac.util :refer [re?]]
-            [lilac.util :refer [preview-data]]
+  (:require [lilac.util :refer [re? preview-data check-keys]]
             [clojure.string :as string]
             [clojure.set :refer [difference]]))
 
@@ -42,7 +41,9 @@
 
 (defn any+
   ([] (any+ nil))
-  ([options] {:lilac-type :any, :options options, :some? (:some? options)}))
+  ([options]
+   (check-keys "checking any+" options [:some?])
+   {:lilac-type :any, :options options, :some? (:some? options)}))
 
 (defn boolean+ ([] (boolean+ nil)) ([options] {:lilac-type :boolean}))
 
@@ -513,6 +514,7 @@
 (defn list+
   ([item] (list+ item nil))
   ([item options]
+   (check-keys "checking list+" options [:allow-seq?])
    {:lilac-type :list, :item item, :options options, :allow-seq? (:allow-seq? options)}))
 
 (defn map+
@@ -529,6 +531,7 @@
 (defn number+
   ([] (number+ nil))
   ([options]
+   (check-keys "checking number+" options [:max :min])
    {:lilac-type :number, :max (:max options), :min (:min options), :options options}))
 
 (defn optional+
@@ -546,6 +549,7 @@
 (defn record+
   ([pairs] (record+ pairs nil))
   ([pairs options]
+   (check-keys "checking record+" options [:exact-keys? :check-keys? :all-optional?])
    {:lilac-type :record,
     :pairs pairs,
     :options options,
@@ -566,6 +570,7 @@
 (defn string+
   ([] (string+ nil))
   ([options]
+   (check-keys "checking string+" options [:nonblank?])
    {:lilac-type :string,
     :re (:re options),
     :nonblank? (:nonblank? options),
@@ -577,6 +582,7 @@
   ([items] (tuple+ items nil))
   ([items options]
    (assert (vector? items) "expects items of tuple+ in vector")
+   (check-keys "checking tuple+" options [:in-list? :check-size?])
    {:lilac-type :tuple,
     :items items,
     :options options,
@@ -586,4 +592,5 @@
 (defn vector+
   ([item] (vector+ item nil))
   ([item options]
+   (check-keys "checking vector+" options [:allow-seq?])
    {:lilac-type :vector, :item item, :options options, :allow-seq? (:allow-seq? options)}))

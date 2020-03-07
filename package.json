@@ -2,8 +2,7 @@
   "name": "calcit-nodejs-workflow",
   "version": "0.1.0",
   "scripts": {
-    "m2": "clojure -A:depstar && clojure -A:install",
-    "deploy": "clojure -A:depstar && clojure -A:deploy",
+    "deploy": "clj -A:release",
     "watch": "yarn shadow-cljs watch app test"
   },
   "main": "index.js",
@@ -11,7 +10,7 @@
   "author": "jiyinyiyong <jiyinyiyong@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "shadow-cljs": "^2.8.90",
+    "shadow-cljs": "^2.8.91",
     "source-map-support": "^0.5.16",
     "ws": "^7.2.1"
   }

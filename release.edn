@@ -1,0 +1,6 @@
+{:version "0.1.4-a2"
+ :group-id "mvc-works"
+ :artifact-id "lilac"
+ :skip-tag true
+ :description "Data validation tookits."
+ :scm-url "https://github.com/mvc-works/lilac"}

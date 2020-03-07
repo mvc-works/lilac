@@ -30,4 +30,4 @@ jobs:
         run: 'yarn && yarn shadow-cljs compile test-only && node ./target/test.js'
 
       - name: deploy to clojars
-        run: clojure -A:depstar && env CLOJARS_USERNAME=jiyinyiyong CLOJARS_PASSWORD=${{ secrets.CLOJARS_PASSWORD }} clojure -A:deploy
+        run: env CLOJARS_USERNAME=jiyinyiyong CLOJARS_PASSWORD=${{ secrets.CLOJARS_PASSWORD }} clojure -A:release

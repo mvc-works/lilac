@@ -38,7 +38,7 @@
    :put (lilac-method+),
    :delete (lilac-method+),
    :next (optional+ (vector+ (lilac-router-path+)))}
-  {:valid-keys? true}))
+  {:check-keys? true}))
 
 (deflilac
  lilac-router+
