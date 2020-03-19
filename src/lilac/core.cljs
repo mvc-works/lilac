@@ -53,22 +53,24 @@
     (let [message (str (:message result) " at " (vec (remove symbol? (:coord result))))]
       (recur (str acc (if (some? acc) "\n" "") message) (:next result)))))
 
+(def ok-result {:ok? true})
+
 (defn validate-any [data rule coord]
   (let [coord (conj coord 'number), something? (:some? rule)]
     (if something?
       (if (some? data)
-        {:ok? true}
+        ok-result
         {:ok? false,
          :data data,
          :rule rule,
          :coord coord,
          :message (or (get-in rule [:options :message])
                       (str "expects something, got " (preview-data data)))})
-      {:ok? true})))
+      ok-result)))
 
 (defn validate-boolean [data rule coord]
   (if (boolean? data)
-    {:ok? true}
+    ok-result
     {:ok? false,
      :data data,
      :rule rule,
@@ -91,7 +93,7 @@
 (defn validate-enum [data rule coord]
   (let [coord (conj coord 'enum), items (:items rule)]
     (if (contains? items data)
-      {:ok? true}
+      ok-result
       {:ok? false,
        :data data,
        :rule rule,
@@ -102,7 +104,7 @@
 (defn validate-fn [data rule coord]
   (let [next-coord (conj coord 'fn)]
     (if (fn? data)
-      {:ok? true}
+      ok-result
       {:ok? false,
        :data data,
        :rule rule,
@@ -113,7 +115,7 @@
 (defn validate-is [data rule coord]
   (let [coord (conj coord 'is)]
     (if (= data (:item rule))
-      {:ok? true}
+      ok-result
       {:ok? false,
        :data data,
        :rule rule,
@@ -128,7 +130,7 @@
 (defn validate-keyword [data rule coord]
   (let [next-coord (conj coord 'keyword)]
     (if (keyword? data)
-      {:ok? true}
+      ok-result
       {:ok? false,
        :data data,
        :rule rule,
@@ -139,7 +141,7 @@
 (defn validate-nil [data rule coord]
   (let [next-coord (conj coord 'nil)]
     (if (nil? data)
-      {:ok? true}
+      ok-result
       {:ok? false,
        :data data,
        :rule rule,
@@ -152,7 +154,7 @@
     (if (number? data)
       (if (and (if (some? min-v) (>= data min-v) true)
                (if (some? max-v) (<= data max-v) true))
-        {:ok? true}
+        ok-result
         {:ok? false,
          :data data,
          :rule rule,
@@ -169,7 +171,7 @@
 (defn validate-re [data rule coord]
   (let [coord (conj coord 're)]
     (if (re? data)
-      {:ok? true}
+      ok-result
       {:ok? false,
        :data data,
        :rule rule,
@@ -183,7 +185,7 @@
       (cond
         (some? re)
           (if (re-matches re data)
-            {:ok? true}
+            ok-result
             {:ok? false,
              :data data,
              :rule rule,
@@ -198,8 +200,8 @@
              :coord coord,
              :message (or (get-in rule [:options :message])
                           (str "expects nonblank string , got " (preview-data data)))}
-            {:ok? true})
-        :else {:ok? true})
+            ok-result)
+        :else ok-result)
       {:ok? false,
        :data data,
        :rule rule,
@@ -210,7 +212,7 @@
 (defn validate-symbol [data rule coord]
   (let [coord (conj coord 'symbol)]
     (if (symbol? data)
-      {:ok? true}
+      ok-result
       {:ok? false,
        :data data,
        :rule rule,
@@ -223,7 +225,7 @@
     (if (or (vector? data) (if allow-seq? (seq? data) false))
       (loop [xs data, idx 0]
         (if (empty? xs)
-          {:ok? true}
+          ok-result
           (let [x0 (first xs)
                 child-coord (conj coord idx)
                 result (validate-lilac x0 item-rule child-coord)]
@@ -258,7 +260,7 @@
                                            (count items)
                                            " items, got "
                                            (count data)))})
-                             {:ok? true})
+                             ok-result)
                            (let [r0 (first xs)
                                  y0 (first ys)
                                  child-coord (conj next-coord idx)
@@ -295,7 +297,7 @@
     (if (set? data)
       (loop [xs data, idx 0]
         (if (empty? xs)
-          {:ok? true}
+          ok-result
           (let [x0 (first xs)
                 child-coord (conj coord idx)
                 result (validate-lilac x0 item-rule child-coord)]
@@ -319,7 +321,7 @@
         check-values (fn []
                        (loop [xs pairs]
                          (if (empty? xs)
-                           {:ok? true}
+                           ok-result
                            (let [[k0 r0] (first xs)
                                  child-coord (conj coord k0)
                                  v (get data k0)]
@@ -376,7 +378,7 @@
 
 (defn validate-optional [data rule coord]
   (let [item (:item rule), coord (conj coord 'optional)]
-    (if (nil? data) {:ok? true} (validate-lilac data item coord))))
+    (if (nil? data) ok-result (validate-lilac data item coord))))
 
 (defn validate-not [data rule coord]
   (let [coord (conj coord 'not), item (:item rule), result (validate-lilac data item coord)]
@@ -387,14 +389,14 @@
        :coord coord,
        :message (get-in rule [:options :message] "expects a inverted value in \"not\""),
        :next result}
-      {:ok? true})))
+      ok-result)))
 
 (defn validate-map [data rule coord]
   (let [key-rule (:key-shape rule), item-rule (:item rule), coord (conj coord 'map)]
     (if (map? data)
       (loop [xs data]
         (if (empty? xs)
-          {:ok? true}
+          ok-result
           (let [[k v] (first xs)
                 child-coord (conj coord k)
                 k-result (validate-lilac k key-rule child-coord)
@@ -412,7 +414,7 @@
     (if (or (list? data) (if allow-seq? (seq? data) false))
       (loop [xs data, idx 0]
         (if (empty? xs)
-          {:ok? true}
+          ok-result
           (let [x0 (first xs)
                 child-coord (conj coord idx)
                 result (validate-lilac x0 item-rule child-coord)]
@@ -453,7 +455,7 @@
   (let [items (:items rule), next-coord (conj coord 'and)]
     (loop [xs items]
       (if (empty? xs)
-        {:ok? true}
+        ok-result
         (let [r0 (first xs), result (validate-lilac data r0 next-coord)]
           (if (:ok? result)
             (recur (rest xs))
