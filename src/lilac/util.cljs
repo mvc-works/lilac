@@ -2,10 +2,10 @@
 (ns lilac.util )
 
 (defn check-keys [message data xs]
-  (let [valid-keys (set xs), real-keys (keys data)]
+  (let [real-keys (keys data)]
     (doseq [k real-keys]
-      (when (not (contains? valid-keys k))
-        (js/console.warn message "unexpected key" (pr-str k) ", expect" (pr-str valid-keys))))))
+      (when (not (some (fn [x] (= k x)) xs))
+        (js/console.warn message "unexpected key" (pr-str k) ", expect" (pr-str xs))))))
 
 (defn preview-data [x]
   (cond
@@ -25,3 +25,9 @@
 (def type-of-re (type #"x"))
 
 (defn re? [x] (= type-of-re (type x)))
+
+(defn seq-difference [xs ys] (->> xs (remove (fn [x] (->> ys (some (fn [y] (= x y))))))))
+
+(defn seq-equal [xs ys]
+  (and (->> xs (every? (fn [x] (->> ys (some (fn [y] (= x y)))))))
+       (->> ys (every? (fn [y] (->> xs (some (fn [x] (= x y)))))))))

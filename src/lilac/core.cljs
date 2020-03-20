@@ -1,9 +1,8 @@
 
 (ns lilac.core
   (:require-macros [lilac.core])
-  (:require [lilac.util :refer [re? preview-data check-keys]]
-            [clojure.string :as string]
-            [clojure.set :refer [difference]]))
+  (:require [lilac.util :refer [re? preview-data check-keys seq-equal seq-difference]]
+            [clojure.string :as string]))
 
 (declare validate-set)
 
@@ -316,8 +315,8 @@
         check-keys? (:check-keys? rule)
         all-optional? (:all-optional? rule)
         default-message (get-in rule [:options :message])
-        wanted-keys (set (keys pairs))
-        existed-keys (if (map? data) (set (keys data)))
+        wanted-keys (keys pairs)
+        existed-keys (if (map? data) (keys data))
         check-values (fn []
                        (loop [xs pairs]
                          (if (empty? xs)
@@ -338,28 +337,28 @@
                     (str "expects a record, got " (preview-data data)))}
       (cond
         exact-keys?
-          (if (= existed-keys wanted-keys)
+          (if (seq-equal existed-keys wanted-keys)
             (check-values)
             {:ok? false,
              :data data,
              :rule rule,
              :coord coord,
              :message (or default-message
-                          (let [extra-keys (difference existed-keys wanted-keys)
-                                missing-keys (difference wanted-keys existed-keys)]
+                          (let [extra-keys (seq-difference existed-keys wanted-keys)
+                                missing-keys (seq-difference wanted-keys existed-keys)]
                             (if (not (empty? extra-keys))
                               (str "unexpected record keys " extra-keys " for " wanted-keys)
                               (str "missing record keys " missing-keys " of " wanted-keys))))})
         check-keys?
-          (if (empty? (difference existed-keys wanted-keys))
-            (check-values)
-            {:ok? false,
-             :data data,
-             :rule rule,
-             :coord coord,
-             :message (or default-message
-                          (let [extra-keys (difference existed-keys wanted-keys)]
-                            (str "unexpected record keys " extra-keys " for " wanted-keys)))})
+          (let [extra-keys (seq-difference existed-keys wanted-keys)]
+            (if (empty? extra-keys)
+              (check-values)
+              {:ok? false,
+               :data data,
+               :rule rule,
+               :coord coord,
+               :message (or default-message
+                            (str "unexpected record keys " extra-keys " for " wanted-keys))}))
         :else (check-values)))))
 
 (defn validate-or [data rule coord]
