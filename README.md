@@ -1,6 +1,4 @@
-
-Lilac: some validation functions in ClojureScript
-----
+## Lilac: some validation functions in ClojureScript
 
 ### Usage
 
@@ -70,23 +68,48 @@ Or use a shortcut with `js/console.error`, which only runs where `js/goog.DEBUG`
 (dev-check 1 (number+))
 ```
 
-Notice:
-
-* in Lilac, a "map" with specific keys are called a "record". Use `map+` for dictionaries.
-* `tuple+` is a vector with each item in specific type. Use `:in-list?` for list instead of vector.
-
-Meanings of record options:
-
-* `:exact-keys?`, keys are exactly the same as rules, no more no fewer
-* `:check-keys?`, keys are inside the rules, no more
-* `:all-optional?`, mark all keys as optional
-
 For more details browse source code:
 
-* https://github.com/mvc-works/lilac/blob/master/src/lilac/test.cljs
-* https://github.com/mvc-works/lilac/blob/master/src/lilac/router.cljs
+- https://github.com/mvc-works/lilac/blob/master/src/lilac/test.cljs
+- https://github.com/mvc-works/lilac/blob/master/src/lilac/router.cljs
 
-For vectors and lists, `:allow-seq? true` to accept lazy sequences.
+### Rules
+
+Notice:
+
+- in Lilac, a "map" with specific keys are called a "record". Use `map+` for dictionaries.
+
+| Rule                                        | Meaning                                |
+| ------------------------------------------- | -------------------------------------- |
+| `(and+ [(number+) (number+ {:min 0})])`     | apply multiple rules                   |
+| `(any+)`                                    | expects anything including nil         |
+| `(boolean+)`                                | expects a boolean                      |
+| `(enum+ #{1 2 3 "4"})`                      | expects an item from listed            |
+| `(list+ (boolean+))`                        | expects a list of items                |
+| `(map+ (keyword+) (number+))`               | expects a map/dict                     |
+| `(nil+)`                                    | expects nil                            |
+| `(number+ {:min 100})`                      | expects a number                       |
+| `(optional+ (number+))`                     | expects an item or nothing             |
+| `(record+ {1 (number+), 2 (number+)})`      | expects a record with specific keys    |
+| `(string+)`                                 | expects a string                       |
+| `(tuple+ [(number+) (string+) (boolean+)])` | expects items of exact rules and order |
+| `(vector+ (boolean+))`                      | expects a vector of items              |
+
+Some rules got options for extending abilities:
+
+| Rule      | Option                  | Meaning                                   |
+| --------- | ----------------------- | ----------------------------------------- |
+| `any+`    | `{:some? true}`         | stop accepting `nil`s                     |
+| `list+`   | `{:allow-seq? true}`    | accepts list in a lazy sequence           |
+| `number+` | `{:min 0}`              | min value                                 |
+|           | `{:max 10}`             | max value                                 |
+| `record+` | `{:all-optional? true}` | mark all fields as not required           |
+|           | `{:check-keys? true}`   | check keys in record obeys rules, no more |
+|           | `{:exact-keys? true}`   | check all keys , no more no fewer         |
+| `string+` | `{:nonblank? true}`     | stop accepting blank strings              |
+| `tuple+`  | `{:in-list? true}`      | accepts list as input                     |
+|           | `{:check-size? true}`   | check if size exactly the same            |
+| `vector+` | `{:allow-seq? true}`    | accepts lazy sequences as well            |
 
 #### Recursive data
 
