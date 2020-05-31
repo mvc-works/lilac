@@ -571,7 +571,7 @@
 (defn string+
   ([] (string+ nil))
   ([options]
-   (check-keys "checking string+" options [:nonblank?])
+   (check-keys "checking string+" options [:nonblank? :re])
    {:lilac-type :string,
     :re (:re options),
     :nonblank? (:nonblank? options),
