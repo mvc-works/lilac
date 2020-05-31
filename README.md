@@ -107,6 +107,7 @@ Some rules got options for extending abilities:
 |           | `{:check-keys? true}`   | check keys in record obeys rules, no more |
 |           | `{:exact-keys? true}`   | check all keys , no more no fewer         |
 | `string+` | `{:nonblank? true}`     | stop accepting blank strings              |
+|           | `{:re #"\\d"}`          | regex for testing string                  |
 | `tuple+`  | `{:in-list? true}`      | accepts list as input                     |
 |           | `{:check-size? true}`   | check if size exactly the same            |
 | `vector+` | `{:allow-seq? true}`    | accepts lazy sequences as well            |

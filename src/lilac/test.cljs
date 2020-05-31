@@ -282,7 +282,9 @@
  (testing "keyword not a string" (is (=ok false (validate-lilac :x (string+)))))
  (testing "blank string" (is (=ok true (validate-lilac "" (string+ {:nonblank? false})))))
  (testing "blank string" (is (=ok false (validate-lilac "" (string+ {:nonblank? true})))))
- (testing "blank string" (is (=ok true (validate-lilac "x" (string+ {:nonblank? true}))))))
+ (testing "blank string" (is (=ok true (validate-lilac "x" (string+ {:nonblank? true})))))
+ (testing "match digits" (is (=ok true (validate-lilac "12" (string+ {:re #"\d+"})))))
+ (testing "not digits" (is (=ok false (validate-lilac "ddd" (string+ {:re #"\d+"}))))))
 
 (deftest
  test-tuple
