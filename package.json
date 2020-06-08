@@ -1,6 +1,6 @@
 {
   "name": "calcit-nodejs-workflow",
-  "version": "0.1.0",
+  "version": "0.1.6",
   "scripts": {
     "deploy": "clj -A:release",
     "m2": "clj -A:release install",
