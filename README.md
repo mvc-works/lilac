@@ -5,7 +5,7 @@
 [![Clojars Project](https://img.shields.io/clojars/v/mvc-works/lilac.svg)](https://clojars.org/mvc-works/lilac)
 
 ```edn
-[mvc-works/lilac "0.1.5"]
+[mvc-works/lilac "0.1.6"]
 ```
 
 ```clojure
@@ -105,7 +105,7 @@ Some rules got options for extending abilities:
 |           | `{:max 10}`             | max value                                 |
 | `record+` | `{:all-optional? true}` | mark all fields as not required           |
 |           | `{:check-keys? true}`   | check keys in record obeys rules, no more |
-|           | `{:exact-keys? true}`   | check all keys , no more no fewer         |
+|           | `{:exact-keys? true}`   | check all keys, no more no fewer          |
 | `string+` | `{:nonblank? true}`     | stop accepting blank strings              |
 |           | `{:re #"\\d"}`          | regex for testing string                  |
 | `tuple+`  | `{:in-list? true}`      | accepts list as input                     |
@@ -121,7 +121,7 @@ Lilac is designed to validate recursive data, based on a "component" concept beh
 
 (deflilac lilac-tree+ []
   (record+ {:name (string+)
-         :children (vector+ (lilac-tree+))}))
+            :children (vector+ (lilac-tree+))}))
 ```
 
 #### Custom rules
