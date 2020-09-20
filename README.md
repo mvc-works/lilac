@@ -94,23 +94,25 @@ Notice:
 | `(string+)`                                 | expects a string                       |
 | `(tuple+ [(number+) (string+) (boolean+)])` | expects items of exact rules and order |
 | `(vector+ (boolean+))`                      | expects a vector of items              |
+| `(pick-type+ {:a (record+ {:type :a})})`    | expects branches picked by type        |
 
 Some rules got options for extending abilities:
 
-| Rule      | Option                  | Meaning                                   |
-| --------- | ----------------------- | ----------------------------------------- |
-| `any+`    | `{:some? true}`         | stop accepting `nil`s                     |
-| `list+`   | `{:allow-seq? true}`    | accepts list in a lazy sequence           |
-| `number+` | `{:min 0}`              | min value                                 |
-|           | `{:max 10}`             | max value                                 |
-| `record+` | `{:all-optional? true}` | mark all fields as not required           |
-|           | `{:check-keys? true}`   | check keys in record obeys rules, no more |
-|           | `{:exact-keys? true}`   | check all keys, no more no fewer          |
-| `string+` | `{:nonblank? true}`     | stop accepting blank strings              |
-|           | `{:re #"\\d"}`          | regex for testing string                  |
-| `tuple+`  | `{:in-list? true}`      | accepts list as input                     |
-|           | `{:check-size? true}`   | check if size exactly the same            |
-| `vector+` | `{:allow-seq? true}`    | accepts lazy sequences as well            |
+| Rule         | Option                  | Meaning                                   |
+| ------------ | ----------------------- | ----------------------------------------- |
+| `any+`       | `{:some? true}`         | stop accepting `nil`s                     |
+| `list+`      | `{:allow-seq? true}`    | accepts list in a lazy sequence           |
+| `number+`    | `{:min 0}`              | min value                                 |
+|              | `{:max 10}`             | max value                                 |
+| `record+`    | `{:all-optional? true}` | mark all fields as not required           |
+|              | `{:check-keys? true}`   | check keys in record obeys rules, no more |
+|              | `{:exact-keys? true}`   | check all keys, no more no fewer          |
+| `string+`    | `{:nonblank? true}`     | stop accepting blank strings              |
+|              | `{:re #"\\d"}`          | regex for testing string                  |
+| `tuple+`     | `{:in-list? true}`      | accepts list as input                     |
+|              | `{:check-size? true}`   | check if size exactly the same            |
+| `vector+`    | `{:allow-seq? true}`    | accepts lazy sequences as well            |
+| `pick-type+` | `{:type-field :type}`   | specify a field for telling type          |
 
 #### Recursive data
 
