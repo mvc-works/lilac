@@ -24,6 +24,7 @@
               nil+
               or+
               is+
+              pick-type+
               register-custom-rule!]]
             [lilac.router :refer [lilac-router+ router-data]]))
 
@@ -195,6 +196,30 @@
  (testing
   "keyword is not number or string"
   (is (=ok false (validate-lilac :x (or+ [(number+) (string+)]))))))
+
+(deftest
+ test-pick-type
+ (let [a-or-b (pick-type+
+               {:a (record+ {:type (is+ :a), :name (string+)}),
+                :b (record+ {:type (is+ :b), :size (number+)})})]
+   (testing "pick-type of a" (is (=ok true (validate-lilac {:type :a, :name "a"} a-or-b))))
+   (testing "pick-type of b" (is (=ok true (validate-lilac {:type :b, :size 1} a-or-b))))
+   (testing "pick-type of unknown c" (is (=ok false (validate-lilac {:type :c} a-or-b))))
+   (testing
+    "pick-type fail b"
+    (is (=ok false (validate-lilac {:type :b, :name "a"} a-or-b))))
+   (testing "pick-type fail a" (is (=ok false (validate-lilac {:type :a, :name 1} a-or-b)))))
+ (testing
+  "pick-type with custom field"
+  (is
+   (=ok
+    true
+    (validate-lilac
+     {:branch :a, :name "a"}
+     (pick-type+
+      {:a (record+ {:branch (is+ :a), :name (string+)}),
+       :b (record+ {:branch (is+ :b), :size (number+)})}
+      {:type-field :branch}))))))
 
 (deftest
  test-record

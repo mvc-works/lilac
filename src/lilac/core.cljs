@@ -26,6 +26,8 @@
 
 (declare validate-list)
 
+(declare validate-pick-type)
+
 (declare validate-vector)
 
 (declare validate-component)
@@ -361,6 +363,31 @@
                             (str "unexpected record keys " extra-keys " for " wanted-keys))}))
         :else (check-values)))))
 
+(defn validate-pick-type [data rule coord]
+  (let [dict (:dict rule)
+        next-coord (conj coord 'pick-type)
+        type-field (:type-field rule)
+        data-type (get data type-field)]
+    (if (nil? (get dict data-type))
+      {:ok? false,
+       :coord next-coord,
+       :rule rule,
+       :data data,
+       :message (get-in
+                 rule
+                 [:options :message]
+                 (str "found no matched type in pick-type: " data-type))}
+      (let [next-rule (get dict data-type)
+            result (validate-lilac data next-rule next-coord)]
+        (if (:ok? result)
+          result
+          {:ok? false,
+           :coord next-coord,
+           :rule rule,
+           :data data,
+           :message (get-in rule [:options :message] (str "failed to match in pick-type")),
+           :next result})))))
+
 (defn validate-or [data rule coord]
   (let [items (:items rule), next-coord (conj coord 'or)]
     (loop [xs items, branches []]
@@ -488,7 +515,8 @@
    :optional validate-optional,
    :tuple validate-tuple,
    :any validate-any,
-   :enum validate-enum})
+   :enum validate-enum,
+   :pick-type validate-pick-type})
 
 (defn custom+
   ([f] (custom+ f nil))
@@ -544,6 +572,15 @@
   ([items options]
    (assert (vector? items) "expects items of or+ in vector")
    {:lilac-type :or, :items items, :options options}))
+
+(defn pick-type+
+  ([dict] (pick-type+ dict nil))
+  ([dict options]
+   (check-keys "checking pick-type+" options [:type-field])
+   {:lilac-type :pick-type,
+    :dict dict,
+    :options options,
+    :type-field (or (:type-field options) :type)}))
 
 (defn re+ ([re] (re+ re nil)) ([re options] {:lilac-type :re, :re re, :options options}))
 
