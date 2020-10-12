@@ -1,4 +1,4 @@
-{:version "0.1.7-a1",
+{:version "0.1.7",
  :group-id "mvc-works",
  :artifact-id "lilac",
  :skip-tag true,
